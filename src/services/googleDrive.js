@@ -161,8 +161,11 @@ async function deleteFile(fileId) {
 
 async function downloadFile(fileId, destPath) {
   const drive = getDrive();
-  const res = await drive.files.get({ fileId, alt: 'media' });
-  fs.writeFileSync(destPath, res.data);
+  const dest = fs.createWriteStream(destPath);
+  const res = await drive.files.get({ fileId, alt: 'media' }, { responseType: 'stream' });
+  await new Promise((resolve, reject) => {
+    res.data.on('end', resolve).on('error', reject).pipe(dest);
+  });
   return destPath;
 }
 
