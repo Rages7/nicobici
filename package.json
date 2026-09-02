@@ -3,6 +3,9 @@
   "version": "2.0.0",
   "description": "Sistema Nicobici Enterprise POS, ERP, Kardex y Cuentas Corrientes (SQLite Engine)",
   "main": "src/server.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

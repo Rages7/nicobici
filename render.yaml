@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: nicobici
+    env: node
+    plan: free
+    repo: https://github.com/Rages7/nicobici
+    branch: main
+    buildCommand: npm install --no-bin-links
+    startCommand: npm start
+    healthCheckPath: /login.html
+    envVars:
+      - key: NODE_VERSION
+        value: 22.23.2
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: nicobici-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
