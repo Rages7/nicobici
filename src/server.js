@@ -33,6 +33,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'nicobici_enterprise_secret_2026';
 
+// Render/Proxy: necesario para express-rate-limit detrás de proxy
+app.set('trust proxy', 1);
+
 // Seguridad HTTP con Helmet (configuración amigable para SPA local)
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -59,9 +62,11 @@ app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 días
   }
 }));
