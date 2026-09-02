@@ -48,20 +48,7 @@ dbDao.createUser({
   creado: now
 });
 
-// También crear admin@nicobici.local por si usa email completo
-try {
-  dbDao.createUser({
-    id: 'user_admin2',
-    nombre: 'Admin',
-    email: 'admin@nicobici.local',
-    password_hash: hash,
-    rol: 'dueno',
-    telefono: '',
-    direccion: '',
-    activo: 1,
-    creado: now
-  });
-} catch(e) {}
+
 
 console.log('✓ Dueño creado: admin / admin (y admin@nicobici.local / admin)');
 
