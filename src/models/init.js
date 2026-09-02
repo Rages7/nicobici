@@ -546,16 +546,21 @@ function resetAndSeedDB() {
 }
 
 function initDB() {
+  // Detectar si esta instalación ya fue "inicializada limpia" (solo admin).
+  // Si la DB tiene usuarios legacy (dueno1, dueno2, etc.) pero NO el admin limpio,
+  // ejecutar limpieza única: borrar todo y dejar solo admin/admin.
   const users = dbDao.getUsers();
-  if (users.length === 0) {
-    resetAndSeedDB();
+  const hasCleanAdmin = users.some(u => u.email && u.email.toLowerCase() === 'admin');
+
+  if (!hasCleanAdmin) {
+    console.log('\n🧹 Inicializando Nicobici limpio: eliminando todo y dejando solo admin/admin...\n');
+    cleanToAdminOnly();
     return;
   }
-  // Si no existe el usuario admin (login exacto "admin"), limpiar todo y crear solo admin/admin
-  const hasAdmin = users.some(u => u.email === 'admin' || u.nombre === 'Admin');
-  if (!hasAdmin) {
-    console.log('\n🧹 No existe usuario admin. Limpiando base y creando admin/admin...\n');
-    cleanToAdminOnly();
+
+  // Ya tiene admin: solo sembrar si está completamente vacío
+  if (users.length === 0) {
+    resetAndSeedDB();
   }
 }
 
