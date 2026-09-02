@@ -549,7 +549,74 @@ function initDB() {
   const users = dbDao.getUsers();
   if (users.length === 0) {
     resetAndSeedDB();
+    return;
   }
+  // Si no existe el usuario admin (login exacto "admin"), limpiar todo y crear solo admin/admin
+  const hasAdmin = users.some(u => u.email === 'admin' || u.nombre === 'Admin');
+  if (!hasAdmin) {
+    console.log('\n🧹 No existe usuario admin. Limpiando base y creando admin/admin...\n');
+    cleanToAdminOnly();
+  }
+}
+
+// Limpia TODAS las tablas y deja exclusivamente el usuario admin/admin
+function cleanToAdminOnly() {
+  const { db } = dbDao;
+  const hash = bcrypt.hashSync('admin', 10);
+  const now = new Date().toISOString();
+
+  // 1. Vaciar todas las tablas
+  db.exec('BEGIN TRANSACTION');
+  try {
+    db.prepare('DELETE FROM venta_items').run();
+    db.prepare('DELETE FROM cuotas').run();
+    db.prepare('DELETE FROM pagos').run();
+    db.prepare('DELETE FROM ventas').run();
+    db.prepare('DELETE FROM compra_items').run();
+    db.prepare('DELETE FROM compras').run();
+    db.prepare('DELETE FROM devolucion_items').run();
+    db.prepare('DELETE FROM devoluciones').run();
+    db.prepare('DELETE FROM movimientos_caja').run();
+    db.prepare('DELETE FROM cierres_caja').run();
+    db.prepare('DELETE FROM cajas').run();
+    db.prepare('DELETE FROM inventario_movimientos').run();
+    db.prepare('DELETE FROM historial_precios').run();
+    db.prepare('DELETE FROM productos').run();
+    db.prepare('DELETE FROM clientes').run();
+    db.prepare('DELETE FROM proveedores').run();
+    db.prepare('DELETE FROM categorias').run();
+    db.prepare('DELETE FROM usuarios').run();
+    db.prepare('DELETE FROM auditoria').run();
+    db.exec('COMMIT');
+  } catch (e) {
+    db.exec('ROLLBACK');
+    throw e;
+  }
+
+  // 2. Crear único usuario: admin / admin
+  dbDao.createUser({
+    id: 'user_admin',
+    nombre: 'Admin',
+    email: 'admin',
+    password_hash: hash,
+    rol: 'dueno',
+    telefono: '',
+    direccion: '',
+    activo: 1,
+    creado: now
+  });
+
+  dbDao.registrarAuditoria({
+    usuarioId: 'user_admin',
+    usuarioNombre: 'Admin',
+    accion: 'INIT_ADMIN_ONLY',
+    modulo: 'SISTEMA',
+    entidad: 'sistema',
+    entidadId: 'init',
+    detalle: 'Arranque: base limpia + solo admin/admin'
+  });
+
+  console.log('✅ Base limpia. Login: admin / admin | Usuarios: 1 | Categorias/Clientes/Productos: 0');
 }
 
 if (require.main === module) {
