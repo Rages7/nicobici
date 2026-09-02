@@ -44,12 +44,26 @@ router.get('/download/:nombre', (req, res) => {
   }
 });
 
-// POST /api/backup - Crear nuevo backup SQLite copia
+function getTimestamp() {
+  // Hora exacta Argentina (UTC-3)
+  return new Date().toLocaleString('sv-SE', { timeZone: 'America/Argentina/Buenos_Aires', hour12: false }).replace(' ', 'T').replace(/:/g, '-');
+}
+
+// POST /api/backup - Crear nuevo backup SQLite copia (solo 1 archivo, reemplaza anterior)
 router.post('/', async (req, res) => {
   try {
-    const now = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const backupDbName = `nicobici-backup-${now}.db`;
+    const now = getTimestamp();
+    const backupDbName = `nicobici-db-${now}.db`;
     const targetDbPath = path.join(BACKUPS_DIR, backupDbName);
+
+    // Limpiar backups anteriores locales (mantener solo 1)
+    try {
+      fs.readdirSync(BACKUPS_DIR).forEach(f => {
+        if (f.startsWith('nicobici-db-') || f.startsWith('nicobici-backup-') || f.startsWith('nicobici-snapshot-')) {
+          try { fs.unlinkSync(path.join(BACKUPS_DIR, f)); } catch(_) {}
+        }
+      });
+    } catch(_) {}
 
     const sourceDbPath = path.join(DATA_DIR, 'nicobici.db');
     if (fs.existsSync(sourceDbPath)) {
@@ -71,6 +85,15 @@ router.post('/', async (req, res) => {
         const config = db.getConfigDrive();
         if (config.autoUpload) {
           const folderId = config.folderId || await driveService.findOrCreateFolder();
+          // Borrar anteriores en Drive antes de subir (1 solo)
+          try {
+            const oldFiles = await driveService.listFiles(folderId);
+            for (const f of oldFiles) {
+              if (f.name.startsWith('nicobici-db-') || f.name.startsWith('nicobici-backup-') || f.name.startsWith('nicobici-snapshot-')) {
+                try { await driveService.deleteFile(f.id); } catch(_) {}
+              }
+            }
+          } catch(_) {}
           if (fs.existsSync(targetDbPath)) {
             await driveService.uploadFile(targetDbPath, backupDbName, folderId);
           }

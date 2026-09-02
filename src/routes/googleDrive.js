@@ -67,7 +67,11 @@ router.post('/disconnect', (req, res) => {
   }
 });
 
-// POST /api/google-drive/upload - Subir backup actual a Drive
+function getTimestamp() {
+  return new Date().toLocaleString('sv-SE', { timeZone: 'America/Argentina/Buenos_Aires', hour12: false }).replace(' ', 'T').replace(/:/g, '-');
+}
+
+// POST /api/google-drive/upload - Subir backup actual a Drive (solo 1 archivo con hora exacta ARG)
 router.post('/upload', async (req, res) => {
   try {
     if (!driveService.isAuthenticated()) {
@@ -79,7 +83,17 @@ router.post('/upload', async (req, res) => {
     const results = [];
 
     if (fs.existsSync(sourceDbPath)) {
-      const now = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      // Borrar backups anteriores en Drive (mantener solo 1)
+      try {
+        const oldFiles = await driveService.listFiles(folderId);
+        for (const f of oldFiles) {
+          if (f.name.startsWith('nicobici-db-') || f.name.startsWith('nicobici-backup-') || f.name.startsWith('nicobici-snapshot-')) {
+            try { await driveService.deleteFile(f.id); } catch(_) {}
+          }
+        }
+      } catch(_) {}
+
+      const now = getTimestamp();
       const dbFile = await driveService.uploadFile(sourceDbPath, `nicobici-db-${now}.db`, folderId);
       results.push(dbFile);
 
