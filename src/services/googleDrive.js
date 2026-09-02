@@ -3,10 +3,32 @@ const fs = require('fs');
 const path = require('path');
 
 const DATA_DIR = path.join(__dirname, '../../data');
-const CREDENTIALS_PATH = path.join(__dirname, '../../client_secret_109339278610-pbo4r4rd2hj95fmim65im49pfd425ea9.apps.googleusercontent.com.json');
 const TOKEN_PATH = path.join(DATA_DIR, 'token.json');
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 const FOLDER_NAME = 'Nicobici Backups';
+
+// Buscar credentials.json en varias ubicaciones (local, Render Secret Files, env var)
+function resolveCredentialsPath() {
+  // 1. Variable de entorno si existe
+  if (process.env.GOOGLE_CREDENTIALS_PATH && fs.existsSync(process.env.GOOGLE_CREDENTIALS_PATH)) {
+    return process.env.GOOGLE_CREDENTIALS_PATH;
+  }
+  // 2. Raíz del proyecto (local)
+  const projectRoot = path.join(__dirname, '../..');
+  const candidates = [
+    // Disco persistente de Render (está en /data/)
+    path.join(DATA_DIR, 'client_secret.json'),
+    path.join(DATA_DIR, 'credentials.json'),
+    // Raíz del proyecto (local development)
+    path.join(projectRoot, 'client_secret_109339278610-pbo4r4rd2hj95fmim65im49pfd425ea9.apps.googleusercontent.com.json'),
+    path.join(projectRoot, 'credentials.json'),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return candidates[0]; // fallback al path original (dará error claro si no existe)
+}
+const CREDENTIALS_PATH = resolveCredentialsPath();
 
 let oauth2Client = null;
 let driveClient = null;
