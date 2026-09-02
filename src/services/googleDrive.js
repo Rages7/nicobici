@@ -16,6 +16,9 @@ function resolveCredentialsPath() {
   // 2. Raíz del proyecto (local)
   const projectRoot = path.join(__dirname, '../..');
   const candidates = [
+    // Render Secret Files (montado en /etc/secrets/)
+    '/etc/secrets/client_secret.json',
+    '/etc/secrets/credentials.json',
     // Disco persistente de Render (está en /data/)
     path.join(DATA_DIR, 'client_secret.json'),
     path.join(DATA_DIR, 'credentials.json'),
