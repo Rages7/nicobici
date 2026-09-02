@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Tablero Operativo & Analítica</title>
+<link rel="stylesheet" href="/css/style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.hero-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+@media(max-width: 1200px) {
+  .hero-strip { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 640px) {
+  .hero-strip { grid-template-columns: 1fr; }
+}
+
+.hero-card {
+  padding: 18px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--duration) var(--ease);
+}
+.hero-card:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+.hero-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 12px 0 0 12px;
+}
+.hero-card.hero-blue::before { background: var(--primary); }
+.hero-card.hero-green::before { background: var(--success); }
+.hero-card.hero-amber::before { background: var(--accent); }
+.hero-card.hero-red::before { background: var(--danger); }
+
+.hero-val {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text);
+  margin-top: 2px;
+}
+.hero-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hero-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+}
+.chart-card .card-body {
+  padding: 16px 18px;
+  flex: 1;
+  min-height: 220px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chart-card canvas {
+  width: 100% !important;
+  max-height: 220px !important;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  display: inline-block;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Principal</div>
+    <a class="side-link active" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas</a>
+    <a class="side-link" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/><path d="M16 3.1a4 4 0 010 7.8"/></svg> Clientes</a>
+        <div class="side-section">Gestión</div>
+    <a class="side-link" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Mostrador / Inicio</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div id="cfgLabel" class="muted" style="color:var(--sidebar-muted);font-size:11px"></div>
+    </div>
+    <button id="btn-logout" class="btn btn-ghost btn-sm" style="display:none;background:var(--sidebar-active);color:#fff;border-color:transparent">Salir</button>
+  </div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+  <div>
+    <div class="breadcrumb"><a href="/">Inicio</a> <span>/</span> <span style="color:var(--text);font-weight:600">Tablero Operativo</span></div>
+    <h1>Métricas & Analítica en Vivo <span class="pulse-dot" style="margin-left:6px" title="Actualización en vivo"></span></h1>
+  </div>
+  <div class="topbar-actions">
+    <span class="nav-user badge badge-blue" style="display:none;font-size:12px;font-weight:700"></span>
+    <a href="/ventas.html" class="btn btn-primary">+ Nueva Venta (POS)</a>
+    <button class="btn btn-ghost btn-sm btn-logout" style="display:none;color:var(--danger)" title="Cerrar sesión">🚪 Salir</button>
+  </div>
+</div>
+
+<div class="content">
+  <!-- Toolbar con selector de fecha y presets rápidos -->
+  <div class="card" style="padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;align-items:center;flex:1;min-width:240px">
+      <span class="muted" style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase">Fecha</span>
+      <input id="fecha" type="date" style="width:160px;margin:0;padding:7px 10px;font-size:13px"/>
+      <button id="btn-hoy" class="btn btn-soft btn-sm">Hoy</button>
+      <button id="btn-ayer" class="btn btn-ghost btn-sm">Ayer</button>
+      <button id="btn-refresh" class="btn btn-ghost btn-sm" title="Recargar datos">↻ Actualizar</button>
+    </div>
+  </div>
+
+  <!-- Hero 4 KPIs Principales -->
+  <div id="kpis" class="hero-strip" style="margin-top:14px">
+    <div class="card card-pad" style="text-align:center;grid-column:1/-1"><span class="spinner"></span> Cargando métricas...</div>
+  </div>
+
+  <!-- Alerta de Cuotas y Deuda si existen -->
+  <div id="alertCuotas" style="margin-top:12px;display:none"></div>
+
+  <!-- Secondary 3 Metric Cards -->
+  <div id="kpisSec" class="grid grid-3" style="margin-top:12px"></div>
+
+  <!-- Gráficos Interactivos -->
+  <div class="grid grid-2" style="margin-top:14px">
+    <div class="card chart-card">
+      <div class="card-header">
+        <h3>📈 Evolución Últimos 7 Días</h3>
+        <span class="badge badge-blue">Facturación vs Ganancia</span>
+      </div>
+      <div class="card-body">
+        <canvas id="cEvo" height="150"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="card-header">
+        <h3>🏷️ Ventas por Categoría (Hoy)</h3>
+        <span class="badge badge-gray">Distribución Neta</span>
+      </div>
+      <div class="card-body">
+        <canvas id="cCat" height="150"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:14px">
+    <div class="card chart-card">
+      <div class="card-header">
+        <h3>🚲 Unidades Vendidas por Producto (Hoy)</h3>
+      </div>
+      <div class="card-body">
+        <canvas id="cCantidad" height="150"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="card-header">
+        <h3>💵 Ganancia por Producto (Hoy)</h3>
+      </div>
+      <div class="card-body">
+        <canvas id="cGanancia" height="150"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablas Operativas: Top Productos & Top Deudores -->
+  <div class="grid grid-2" style="margin-top:14px">
+    <div class="card">
+      <div class="card-header">
+        <h3>🔥 Más Vendidos (Últimos 30 días)</h3>
+        <span class="muted" style="font-size:11px">Ranking por unidades</span>
+      </div>
+      <div id="topProd">Cargando…</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>⚠️ Clientes con Mayor Deuda</h3>
+      </div>
+      <div id="topDeuda">Cargando…</div>
+    </div>
+  </div>
+
+  <!-- Reposición Urgente de Stock -->
+  <div style="margin-top:14px">
+    <div class="card">
+      <div class="card-header">
+        <h3>📦 Alerta Stock Bajo — Reposición</h3>
+      </div>
+      <div class="card-body" id="stockBajo">Cargando…</div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<nav class="mobile-nav">
+  <a class="active" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg><span>Dashboard</span></a>
+  <a href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg><span>Productos</span></a>
+  <a href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8"/></svg><span>Ventas</span></a>
+  <a href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg><span>Clientes</span></a>
+  <a href="#" class="btn-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="color:var(--danger)">Salir</span></a>
+</nav>
+
+<script src="/js/app.js"></script>
+<script>
+let charts = {};
+function upsertChart(id, type, data, options) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(ctx, { type, data, options });
+}
+
+async function load() {
+  const fecha = document.getElementById('fecha').value || new Date().toISOString().slice(0, 10);
+  const r = await fetch('/api/analitica?fecha=' + fecha).then(x => x.json()).catch(() => null);
+  if (!r || !r.ok) {
+    showToast('No se pudo cargar la analítica', 'error');
+    return;
+  }
+  const d = r.data;
+  const k = d.kpis;
+  
+  if (document.getElementById('cfgLabel') && d.config) {
+    document.getElementById('cfgLabel').textContent = d.config.empresa;
+  }
+  
+  const tieneDeuda = k.debePendiente > 0.01;
+  const deudaColor = tieneDeuda ? 'amber' : 'green';
+  const deudaIcon = tieneDeuda ? 'amber' : 'green';
+  const deudaSub = tieneDeuda ? `${k.ventasConDeuda || 1} ventas con saldo` : 'Sin saldo pendiente ✓';
+
+  // 4 KPIs Principales
+  document.getElementById('kpis').innerHTML = `
+    <div class="card hero-card hero-blue">
+      <div class="hero-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8"/></svg></div>
+      <div style="flex:1;min-width:0">
+        <div class="hero-label">Ventas Hoy</div>
+        <div class="hero-val">${k.ventasHoy}</div>
+        <div class="hero-sub">${k.unidadesHoy || 0} unidades · ${fecha}</div>
+      </div>
+    </div>
+    <div class="card hero-card hero-blue">
+      <div class="hero-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M16 12H8"/></svg></div>
+      <div style="flex:1;min-width:0">
+        <div class="hero-label">Facturado Hoy</div>
+        <div class="hero-val">${money(k.totalVendido)}</div>
+        <div class="hero-sub">Neto ${money(k.subtotalHoy)} + IVA ${money(k.ivaHoy)}</div>
+      </div>
+    </div>
+    <div class="card hero-card hero-green">
+      <div class="hero-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+      <div style="flex:1;min-width:0">
+        <div class="hero-label">Ganancia Bruta</div>
+        <div class="hero-val" style="color:var(--success)">${money(k.gananciaHoy)}</div>
+        <div class="hero-sub">Neto − Costo de mercadería</div>
+      </div>
+    </div>
+    <div class="card hero-card hero-${deudaColor}">
+      <div class="hero-icon ${deudaIcon}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div style="flex:1;min-width:0">
+        <div class="hero-label">Saldo a Cobrar</div>
+        <div class="hero-val" style="color:${tieneDeuda ? 'var(--danger)' : 'var(--success)'}">${money(k.debePendiente)}</div>
+        <div class="hero-sub" style="display:flex;align-items:center;gap:6px"><span class="dot ${deudaColor}"></span>${deudaSub}</div>
+      </div>
+    </div>
+  `;
+
+  // Mini cards
+  const ticketPromedio = k.ventasHoy > 0 ? (k.totalVendido / k.ventasHoy) : 0;
+  document.getElementById('kpisSec').innerHTML = `
+    <div class="card card-pad">
+      <div class="hero-label">Ventas con Saldo</div>
+      <div class="num" style="font-size:22px;font-weight:800;margin-top:2px">${k.ventasConDeuda || 0}</div>
+      <div class="hero-sub">${tieneDeuda ? 'Cuentas corrientes pendientes' : 'Todas las ventas cobradas ✓'}</div>
+    </div>
+    <div class="card card-pad">
+      <div class="hero-label">Ticket Promedio (Hoy)</div>
+      <div class="num" style="font-size:22px;font-weight:800;margin-top:2px;color:var(--primary)">${money(ticketPromedio)}</div>
+      <div class="hero-sub">${k.ventasHoy ? `${k.ventasHoy} operaciones registradas` : 'Sin ventas en esta fecha'}</div>
+    </div>
+    <div class="card card-pad">
+      <div class="hero-label">Alerta de Stock</div>
+      <div class="num" style="font-size:22px;font-weight:800;margin-top:2px;color:${d.stockBajo.length ? 'var(--warning-dark)' : 'var(--text)'}">${d.stockBajo.length}</div>
+      <div class="hero-sub">${d.stockBajo.length ? 'Productos bajo mínimo' : 'Stock en niveles óptimos ✓'}</div>
+    </div>
+  `;
+
+  // Alerta destacada
+  const alertBox = document.getElementById('alertCuotas');
+  if (tieneDeuda) {
+    alertBox.style.display = 'block';
+    alertBox.innerHTML = `<div class="alert alert-warn"><span class="dot amber"></span><span><b>${k.ventasConDeuda} ventas con saldo pendiente</b> (${money(k.debePendiente)} a cobrar).</span></div>`;
+  } else {
+    alertBox.style.display = 'none';
+  }
+
+  // Gráficos
+  const labels1 = d.porProducto.map(x => x.nombre);
+  const vals1 = d.porProducto.map(x => x.qty);
+  upsertChart('cCantidad', 'doughnut', {
+    labels: labels1.length ? labels1 : ['Sin ventas hoy'],
+    datasets: [{
+      data: vals1.length ? vals1 : [1],
+      backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16', '#64748b'],
+      borderWidth: 2,
+      borderColor: '#ffffff'
+    }]
+  }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '66%',
+    plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 11, family: 'Inter' } } } }
+  });
+
+  const labels2 = d.porCategoria.map(x => x.nombre);
+  const vals2 = d.porCategoria.map(x => x.total);
+  upsertChart('cCat', 'doughnut', {
+    labels: labels2.length ? labels2 : ['Sin ventas hoy'],
+    datasets: [{
+      data: vals2.length ? vals2 : [1],
+      backgroundColor: ['#3b82f6', '#34d399', '#fbbf24', '#a78bfa', '#f87171', '#38bdf8', '#fb923c'],
+      borderWidth: 2,
+      borderColor: '#ffffff'
+    }]
+  }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '66%',
+    plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 11, family: 'Inter' } } } }
+  });
+
+  upsertChart('cGanancia', 'bar', {
+    labels: labels1.length ? labels1 : ['Sin ventas'],
+    datasets: [{
+      label: 'Ganancia ($)',
+      data: d.porProducto.map(x => x.ganancia || 0),
+      backgroundColor: '#10b981',
+      borderRadius: 6,
+      barThickness: 18
+    }]
+  }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } }, beginAtZero: true }
+    }
+  });
+
+  const evoLabels = d.evolucion.map(x => x.fecha.slice(5));
+  upsertChart('cEvo', 'line', {
+    labels: evoLabels,
+    datasets: [
+      {
+        label: 'Total Facturado',
+        data: d.evolucion.map(x => x.total),
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+        fill: true,
+        tension: 0.35,
+        borderWidth: 2.5,
+        pointRadius: 3
+      },
+      {
+        label: 'Ganancia Bruta',
+        data: d.evolucion.map(x => x.ganancia),
+        borderColor: '#10b981',
+        backgroundColor: 'transparent',
+        fill: false,
+        tension: 0.35,
+        borderWidth: 2,
+        borderDash: [4, 4],
+        pointRadius: 2
+      }
+    ]
+  }, {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { intersect: false, mode: 'index' },
+    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12, font: { size: 11, family: 'Inter' } } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } }, beginAtZero: true }
+    }
+  });
+
+  // Tablas
+  document.getElementById('topProd').innerHTML = d.topProductos.length ?
+    `<div class="table-wrap" style="border:0;border-radius:0">
+      <table class="table">
+        <thead><tr><th>#</th><th>Producto</th><th class="num">Unidades (30d)</th></tr></thead>
+        <tbody>` + d.topProductos.map((x, i) => `
+          <tr>
+            <td class="muted" style="font-size:11px">${i + 1}</td>
+            <td style="font-weight:600">${esc(x.nombre)}</td>
+            <td class="num"><span class="badge badge-blue">${x.qty} u</span></td>
+          </tr>
+        `).join('') + `</tbody>
+      </table>
+    </div>` : '<div style="padding:24px;text-align:center" class="muted">Sin ventas en los últimos 30 días</div>';
+
+  document.getElementById('topDeuda').innerHTML = d.topDeudores.length ?
+    `<div class="table-wrap" style="border:0;border-radius:0">
+      <table class="table">
+        <thead><tr><th>Cliente</th><th class="num">Saldo Pendiente</th></tr></thead>
+        <tbody>` + d.topDeudores.map(x => `
+          <tr>
+            <td style="font-weight:700">${esc(x.clienteNombre || x.usuarioNombre || 'Cliente')}</td>
+            <td class="num" style="color:var(--danger);font-weight:900;font-size:14px">${money(x.deuda)}</td>
+          </tr>
+        `).join('') + `</tbody>
+      </table>
+    </div>` : '<div style="padding:24px;text-align:center"><span class="badge badge-green">¡Excelente! Ningún cliente tiene deuda pendiente ✓</span></div>';
+
+  document.getElementById('stockBajo').innerHTML = d.stockBajo.length ?
+    `<div style="display:flex;gap:8px;flex-wrap:wrap">` + d.stockBajo.map(p => `
+      <span class="badge badge-amber" style="padding:6px 12px;font-size:12px">
+        <b>${esc(p.nombre)}</b>: ${p.stock}/${p.stockMin} u
+      </span>
+    `).join('') + `</div>` : '<div style="padding:16px;text-align:center"><span class="badge badge-green">Todos los productos cuentan con stock suficiente ✓</span></div>';
+}
+
+const fechaInput = document.getElementById('fecha');
+fechaInput.value = new Date().toISOString().slice(0, 10);
+fechaInput.addEventListener('change', load);
+
+document.getElementById('btn-hoy').addEventListener('click', () => {
+  fechaInput.value = new Date().toISOString().slice(0, 10);
+  load();
+});
+document.getElementById('btn-ayer').addEventListener('click', () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  fechaInput.value = d.toISOString().slice(0, 10);
+  load();
+});
+document.getElementById('btn-refresh').addEventListener('click', load);
+
+// Auto-refresh cada 30 segundos
+setInterval(load, 30000);
+
+refreshNav().then(load);
+</script>
+</body>
+</html>
+

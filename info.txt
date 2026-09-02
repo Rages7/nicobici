@@ -1,0 +1,534 @@
+# DOCUMENTACIÓN INTEGRAL DEL PROYECTO: NICOBICI
+
+================================================================================
+1. DESCRIPCIÓN GENERAL DEL PROYECTO
+================================================================================
+
+Nicobici es un sistema de gestión comercial y Punto de Venta (POS) diseñado a medida para un comercio dedicado a la venta de bicicletas, motos, repuestos, accesorios, muebles y productos relacionados.
+
+El sistema está pensado principalmente para ser utilizado por el dueño del negocio, priorizando:
+- Simplicidad de uso y agilidad operativa.
+- Funcionamiento rápido y bajo consumo de recursos.
+- Instalación sencilla en entorno local (PC o Android con Termux) o en servidor Node.js pequeño.
+- Control de catálogo de productos y stock en tiempo real.
+- Registro ágil de ventas (contado, cuenta corriente y cuotas).
+- Gestión de cuentas corrientes y control de cobros/deudas de clientes.
+- Control de pagos y cuotas con cálculo de vencimientos.
+- Trazabilidad total de inventario mediante Kardex inmutable.
+- Control de caja diaria (apertura, movimientos, ingresos/egresos y arqueo de cierre).
+- Módulo de compras a proveedores con actualización automática de stock y costos.
+- Emisión de presupuestos y cotizaciones convertibles a venta.
+- Generación de tickets de venta imprimibles y comprobantes listos para enviar por WhatsApp.
+- Dashboard analítico con KPIs comerciales, rentabilidad histórica y estadísticas visuales.
+- Copias de seguridad automáticas/manuales (ZIP) y auditoría de eventos.
+- Arquitectura preparada para futura integración de Facturación Electrónica (ARCA / AFIP).
+
+
+================================================================================
+2. OBJETIVOS DEL SISTEMA
+================================================================================
+
+2.1 Objetivo Principal
+Centralizar en un único sistema integral toda la administración del comercio, permitiendo controlar productos, stock, ventas, clientes, proveedores, compras, caja y cuentas corrientes con alta confiabilidad y rendimiento.
+
+2.2 Objetivos Específicos
+- Registrar y clasificar productos por categorías comerciales y técnicas.
+- Controlar cantidades disponibles con alertas de stock mínimo y productos agotados.
+- Registrar costos de adquisición y precios de venta para calcular rentabilidad real.
+- Descontar stock automáticamente y de forma atómica en cada venta confirmada.
+- Administrar ventas fiadas, financiadas o de pago diferido.
+- Llevar el saldo deudor de cada cliente actualizado en tiempo real.
+- Generar planes de cuotas con control de vencimiento y estado de pago.
+- Registrar compras a proveedores, aumentando stock y recalculando costos.
+- Mantener un historial Kardex inmutable para auditoría de movimientos de mercadería.
+- Administrar la caja diaria, registrando entradas/salidas y diferencias de arqueo.
+- Emitir tickets de venta y presupuestos sin impacto de stock.
+- Ofrecer estadísticas financieras, productos más rentables y evolución de ventas.
+- Realizar copias de seguridad íntegras (Base de datos + archivos adjuntos).
+- Facilitar el envío de comprobantes y recordatorios de pago por WhatsApp.
+
+
+================================================================================
+3. ARQUITECTURA Y STACK TECNOLÓGICO
+================================================================================
+
+Nicobici utiliza una arquitectura Monolito Ligero + REST API + Single Page Web App (SPA), diseñada para operar de forma eficiente sin sobrecarga de infraestructura:
+
+Backend:
+- Node.js (Runtime JavaScript).
+- Express 4.x (Framework HTTP y ruteador REST).
+- Multer (Manejo de subida de imágenes y comprobantes multipart/form-data).
+
+Base de Datos:
+- SQLite (archivo data/nicobici.db como base de datos relacional transaccional principal).
+- Ventajas:
+  * No requiere instalar servidores de bases de datos pesados (cero configuración).
+  * Soporte nativo de transacciones ACID (Rollback si falla una operación compleja).
+  * Evita bloqueos y problemas de concurrencia de archivos JSON crudos.
+  * Respaldo ultra simple (copia de archivo único o compresión a ZIP).
+  * Compatibilidad total con Linux, Windows, Android/Termux y VPS ligeros.
+- Archivos JSON: Mantenidos exclusivamente para importaciones, exportaciones, snapshots de migración (npm run migrate) y backups legibles.
+
+Seguridad:
+- express-session con almacenamiento seguro de cookies (HttpOnly, SameSite, MaxAge).
+- bcryptjs para hashing unidireccional de contraseñas.
+- Helmet para cabeceras HTTP defensivas (anti-XSS, anti-clickjacking, CSP).
+- express-rate-limit para mitigación de fuerza bruta en endpoints de login.
+- Validación estricta de payloads y sanitización de entradas.
+- Variables de entorno (.env) para llaves secretas y configuración sensible.
+
+Frontend:
+- HTML5 semántico + CSS3 estructurado (diseño claro responsivo, optimizado para desktop y móvil).
+- JavaScript Vanilla modular (Fetch API nativa para comunicación con endpoints REST).
+- Chart.js vía CDN para renderizado de dashboards y gráficos analíticos.
+- Sin dependencias de frameworks pesados (React/Angular/Vue no requeridos).
+
+Almacenamiento de Archivos e Imágenes:
+- Directorio public/uploads/ para fotos de productos y archivos adjuntos (JPG, PNG, WebP).
+- En la base de datos se almacena únicamente la ruta relativa (/uploads/archivo.webp).
+
+
+================================================================================
+4. ESTRUCTURA JERÁRQUICA DEL PROYECTO
+================================================================================
+
+nicobici/
+├── data/                                 # Base de datos y almacenamiento de datos
+│   ├── nicobici.db                       # Base de datos relacional SQLite principal
+│   ├── backups/                          # Respaldos comprimidos (.zip)
+│   ├── users.json                        # Snapshot / migración de usuarios
+│   ├── clientes.json                     # Snapshot / migración de clientes
+│   ├── proveedores.json                  # Snapshot / migración de proveedores
+│   ├── categorias.json                   # Snapshot / migración de categorías
+│   ├── productos.json                    # Snapshot / migración de productos
+│   ├── ventas.json                       # Snapshot / migración de ventas
+│   ├── pagos.json                        # Snapshot / migración de pagos
+│   └── inventario_movimientos.json       # Snapshot / migración de Kardex
+│
+├── public/                               # Frontend estático y vistas web
+│   ├── css/
+│   │   └── style.css                     # Hojas de estilo globales (diseño claro)
+│   ├── js/
+│   │   ├── app.js                        # Lógica compartida, helpers y navegación
+│   │   ├── ventas.js                     # Controlador del Punto de Venta (POS)
+│   │   ├── productos.js                  # Lógica del catálogo y stock
+│   │   ├── clientes.js                   # Cuentas corrientes y fichas de clientes
+│   │   ├── proveedores.js                # Gestión de distribuidores
+│   │   ├── inventario.js                 # Auditoría Kardex y ajustes
+│   │   ├── compras.js                    # Módulo de compras a proveedores
+│   │   ├── caja.js                       # Apertura, movimientos y arqueo de caja
+│   │   └── dashboard.js                  # Renderizado de gráficos y métricas Chart.js
+│   ├── uploads/                          # Almacén de imágenes subidas
+│   ├── index.html                        # Redirección y página principal
+│   ├── login.html                        # Acceso seguro al sistema
+│   ├── dashboard.html                    # Panel analítico y KPIs
+│   ├── ventas.html                       # Módulo POS de facturación
+│   ├── productos.html                    # ABM de catálogo e inventario
+│   ├── categorias.html                   # Clasificación de categorías
+│   ├── clientes.html                     # Directorio de clientes y deudas
+│   ├── proveedores.html                  # Proveedores y contactos comerciales
+│   ├── compras.html                      # Registro de facturas de compra
+│   ├── inventario.html                   # Consulta de Kardex y stock
+│   ├── caja.html                         # Flujo de caja diaria y cierres
+│   ├── presupuesto.html                  # Emisor de cotizaciones
+│   ├── ticket.html                       # Formato de ticket térmico imprimible
+│   ├── cuotas.html                       # Seguimiento de planes de pago
+│   └── configuracion.html                # Ajustes de empresa, IVA y backups
+│
+├── src/                                  # Backend de la aplicación
+│   ├── server.js                         # Servidor Express y middlewares globales
+│   ├── models/
+│   │   ├── db.js                         # Capa de datos y operaciones SQLite
+│   │   ├── init.js                       # Inicializador del esquema y datos iniciales
+│   │   └── migrations.js                 # Migraciones y script npm run migrate
+│   ├── middleware/
+│   │   ├── auth.js                       # Validación de sesión activa y permisos
+│   │   ├── validation.js                 # Sanitización de datos
+│   │   └── security.js                   # Cabeceras y limitación de peticiones
+│   └── routes/
+│       ├── auth.js                       # Login, Logout y verificación de sesión
+│       ├── productos.js                  # Catálogo, imágenes y precios
+│       ├── categorias.js                 # ABM de categorías
+│       ├── clientes.js                   # Clientes y cuentas corrientes
+│       ├── proveedores.js                # Proveedores y compras vinculadas
+│       ├── ventas.js                     # Creación, cobro, cuotas y anulación de ventas
+│       ├── pagos.js                      # Recibos y pagos parciales
+│       ├── cuotas.js                     # Gestión de cuotas vencidas y cobros
+│       ├── compras.js                    # Ingreso de mercadería por compra
+│       ├── inventario.js                 # Métricas de stock, Kardex y ajustes
+│       ├── caja.js                       # Flujo y arqueo de caja diaria
+│       ├── analitica.js                  # Cálculos de rentabilidad y estadísticas
+│       ├── whatsapp.js                   # Enlaces preformateados para mensajería
+│       ├── auditoria.js                  # Consulta de logs de seguridad
+│       ├── backup.js                     # Generación y restauración de copias
+│       └── config.js                     # Parámetros fiscales y comerciales
+│
+├── .env                                  # Variables de entorno
+├── .gitignore                            # Exclusiones de control de versiones
+├── package.json                          # Manifiesto de dependencias y scripts
+├── README.md                             # Guía rápida de inicio
+└── info.txt                              # Especificación y documentación maestra
+
+
+================================================================================
+5. MODELO DE DATOS RELACIONAL (ESQUEMA SQLITE)
+================================================================================
+
+5.1 Tabla: usuarios
+Almacena las cuentas autorizadas para operar el sistema.
+- id (INTEGER/TEXT PK): Identificador único.
+- nombre (TEXT): Nombre completo del operador.
+- email (TEXT UNIQUE): Correo electrónico para login.
+- password_hash (TEXT): Contraseña hasheada con bcrypt.
+- rol (TEXT): Rol asignado (ej. 'dueno', 'vendedor').
+- activo (BOOLEAN): Estado habilitado/deshabilitado.
+- creado (DATETIME): Fecha de alta.
+- ultimo_acceso (DATETIME): Registro del último inicio de sesión.
+
+5.2 Tabla: clientes
+Ficha detallada para seguimiento comercial y cobranzas.
+- id (TEXT PK): Identificador ('cli_xxx').
+- nombre (TEXT): Nombre de pila.
+- apellido (TEXT): Apellido.
+- telefono (TEXT): Teléfono móvil (clave para contacto de WhatsApp).
+- dni (TEXT): Documento de identidad fiscal/personal.
+- email (TEXT): Correo electrónico.
+- direccion (TEXT): Domicilio de entrega o contacto.
+- notas (TEXT): Observaciones comerciales.
+- creado (DATETIME): Fecha de alta.
+- actualizado (DATETIME): Fecha de última modificación.
+- activo (BOOLEAN): Estado del cliente.
+
+5.3 Tabla: proveedores
+Entidades a las que se compra mercadería y repuestos.
+- id (TEXT PK): Identificador ('prov_xxx').
+- nombre (TEXT): Razón social / Nombre de fantasía.
+- cuit (TEXT): CUIT / Identificación tributaria.
+- telefono (TEXT): Teléfono de contacto comercial.
+- email (TEXT): Correo de compras.
+- direccion (TEXT): Domicilio comercial.
+- notas (TEXT): Información de pago o despacho.
+- creado (DATETIME): Fecha de registro.
+- actualizado (DATETIME): Última actualización.
+- activo (BOOLEAN): Estado activo.
+
+5.4 Tabla: categorias
+Clasificación de productos (BIC, MOT, REP, ACC, MUE).
+- id (TEXT PK): Identificador ('cat_bicis', 'cat_motos', etc.).
+- nombre (TEXT): Nombre descriptivo (Bicicletas, Repuestos, etc.).
+- slug (TEXT): Identificador alfanumérico para filtros.
+- codigo (TEXT): Código de 3 letras (ej. BIC, MOT, REP).
+- descripcion (TEXT): Alcance de la categoría.
+- creado (DATETIME): Fecha de creación.
+- activo (BOOLEAN): Estado habilitado.
+
+5.5 Tabla: productos
+Catálogo maestro de artículos para la venta.
+- id (TEXT PK): Identificador ('prod_xxx').
+- categoria_id (TEXT FK): Referencia a categorias.id.
+- proveedor_id (TEXT FK, nullable): Referencia a proveedores.id.
+- nombre (TEXT): Nombre comercial del producto.
+- descripcion (TEXT): Ficha técnica y características.
+- sku (TEXT): Código de inventario interno del comercio (ej. BIC-MTB-001).
+- codigo_barras (TEXT): Código comercial EAN-13/UPC (ej. 7791234567890).
+- precio (DECIMAL): Precio de venta al público.
+- costo (DECIMAL): Costo de reposición/compra (para margen de ganancia).
+- stock (INTEGER/DECIMAL): Cantidad física disponible.
+- stock_minimo (INTEGER): Umbral de alerta para reposición.
+- iva (DECIMAL): Alícuota impositiva aplicable (ej. 21, 10.5, 0).
+- imagen (TEXT): Ruta local al archivo (/uploads/prod_xxx.webp).
+- activo (BOOLEAN): Habilitado para la venta.
+- creado (DATETIME): Fecha de creación.
+- actualizado (DATETIME): Última edición.
+
+5.6 Tabla: historial_precios
+Auditoría y trazabilidad de variaciones de costo y precio de venta.
+- id (INTEGER PK AUTOINCREMENT)
+- producto_id (TEXT FK): Referencia al producto modificado.
+- precio_anterior (DECIMAL)
+- precio_nuevo (DECIMAL)
+- costo_anterior (DECIMAL)
+- costo_nuevo (DECIMAL)
+- fecha (DATETIME): Momento del cambio de precios.
+
+5.7 Tabla: ventas (Cabecera)
+Registro principal de comprobantes emitidos.
+- id (TEXT PK): Identificador único interno (ej. 'ven_8f72a91').
+- ticket_nro (TEXT): Número comercial de ticket visible (ej. 'T-000152').
+- cliente_id (TEXT FK): Referencia a clientes.id.
+- cliente_nombre (TEXT): Snapshot del nombre al momento de la venta.
+- cliente_telefono (TEXT): Snapshot del teléfono.
+- fecha (DATE): Fecha de la operación.
+- subtotal (DECIMAL): Importe neto antes de impuestos.
+- iva_total (DECIMAL): Monto total de impuestos discriminados.
+- total (DECIMAL): Importe total facturado.
+- pagado (DECIMAL): Monto abonado al momento.
+- debe (DECIMAL): Saldo pendiente (total - pagado).
+- estado (TEXT): 'pagada', 'parcial', 'pendiente', 'anulada'.
+- cuotas_total (INTEGER): Cantidad de cuotas pactadas.
+- vendedor_id (TEXT FK): Usuario que emitió la venta.
+- anulada (BOOLEAN): Flag de anulación.
+- fecha_anulacion (DATETIME, nullable): Momento de la anulación.
+- motivo_anulacion (TEXT, nullable): Causa de la anulación.
+- creado (DATETIME): Timestamp de creación.
+
+5.8 Tabla: venta_items (Detalle de Venta)
+Ítems vendidos con precio y costo histórico congelado.
+- id (INTEGER PK AUTOINCREMENT)
+- venta_id (TEXT FK): Referencia a ventas.id.
+- producto_id (TEXT FK): Referencia a productos.id.
+- nombre (TEXT): Nombre del producto al momento de la venta.
+- sku (TEXT): SKU del producto.
+- precio_unit (DECIMAL): Precio unitario cobrado.
+- costo_unit (DECIMAL): Costo unitario histórico del producto.
+- iva (DECIMAL): Porcentaje de IVA del ítem.
+- cantidad (DECIMAL): Unidades vendidas.
+- subtotal (DECIMAL): Importe neto del ítem.
+- iva_amount (DECIMAL): Impuesto del ítem.
+- total_item (DECIMAL): Total final del ítem.
+
+5.9 Tabla: pagos (Recibos de Cobro)
+Abonos aplicados a ventas y cuentas corrientes.
+- id (TEXT PK): Identificador ('pago_xxx').
+- venta_id (TEXT FK): Venta vinculada.
+- cliente_id (TEXT FK): Cliente pagador.
+- monto (DECIMAL): Valor cobrado.
+- metodo (TEXT): 'efectivo', 'transferencia', 'tarjeta', 'mercado_pago', 'otro'.
+- referencia (TEXT): Número de cupón, ID de transferencia o nota.
+- fecha (DATETIME): Timestamp del cobro.
+
+5.10 Tabla: cuotas
+Desglose cronológico de planes de pago financiados.
+- id (INTEGER PK AUTOINCREMENT)
+- venta_id (TEXT FK): Referencia a ventas.id.
+- numero (INTEGER): Número de cuota (1, 2, ..., N).
+- monto_original (DECIMAL): Valor nominal de la cuota.
+- monto_pagado (DECIMAL): Total abonado sobre esta cuota.
+- saldo (DECIMAL): Monto remanente por pagar.
+- vencimiento (DATE): Fecha de vencimiento exigible.
+- estado (TEXT): 'pendiente', 'parcial', 'pagada', 'vencida'.
+- fecha_pago (DATETIME, nullable): Fecha en que se canceló la cuota.
+- metodo_pago (TEXT, nullable): Medio utilizado para saldarla.
+
+5.11 Tabla: compras (Facturas de Proveedor)
+Registro de adquisición de mercadería.
+- id (TEXT PK): Identificador ('comp_xxx').
+- proveedor_id (TEXT FK): Referencia a proveedores.id.
+- numero (TEXT): Número de remito o factura del proveedor.
+- fecha (DATE): Fecha de compra.
+- subtotal (DECIMAL): Importe neto.
+- iva_total (DECIMAL): IVA de la compra.
+- total (DECIMAL): Total facturado por el proveedor.
+- pagado (DECIMAL): Monto pagado al proveedor.
+- debe (DECIMAL): Deuda con el proveedor.
+- estado (TEXT): 'pagada', 'parcial', 'pendiente'.
+- notas (TEXT): Observaciones del envío o entrega.
+- creado (DATETIME): Timestamp de registro.
+
+5.12 Tabla: compra_items (Detalle de Compra)
+- id (INTEGER PK AUTOINCREMENT)
+- compra_id (TEXT FK): Referencia a compras.id.
+- producto_id (TEXT FK): Referencia a productos.id.
+- cantidad (DECIMAL): Unidades ingresadas.
+- costo_unit (DECIMAL): Costo unitario pactado con el proveedor.
+- subtotal (DECIMAL): Monto neto.
+- iva (DECIMAL): Alícuota impositiva.
+- total (DECIMAL): Monto total del ítem.
+
+5.13 Tabla: inventario_movimientos (Kardex Inmutable)
+Auditoría estricta de variaciones de stock (no se borra ni edita).
+- id (TEXT PK): Identificador ('mov_xxx').
+- producto_id (TEXT FK): Referencia al producto.
+- producto_nombre (TEXT): Nombre del producto al momento del movimiento.
+- tipo (TEXT): 'entrada', 'venta', 'ajuste', 'devolucion', 'compra'.
+- cantidad (DECIMAL): Variación (+ o -).
+- stock_antes (DECIMAL): Stock previo al movimiento.
+- stock_despues (DECIMAL): Stock resultante.
+- motivo (TEXT): Detalle explicativo (ej. 'Venta T-000152', 'Compra COMP-102', 'Ajuste rotura').
+- referencia_id (TEXT, nullable): ID de venta, compra o ajuste.
+- fecha (DATETIME): Timestamp exacto.
+- usuario_id (TEXT FK, nullable): Operador que generó la acción.
+
+5.14 Tablas: caja (Control de Flujo de Efectivo)
+- cajas: Registro de turnos o aperturas diarias (id, fecha_apertura, monto_inicial, fecha_cierre, estado, usuario_id).
+- movimientos_caja: Ingresos y egresos (id, caja_id, tipo ['ingreso', 'egreso', 'venta', 'pago_deuda', 'gasto', 'retiro'], monto, metodo, motivo, fecha).
+- cierres_caja: Arqueo final (id, caja_id, efectivo_esperado, efectivo_contado, diferencia, fecha_cierre, observaciones).
+
+5.15 Tablas: devoluciones & devolucion_items
+Permite reintegrar mercadería al inventario sin alterar el registro histórico de la venta original, generando nota de crédito, saldo a favor o devolución de dinero.
+
+5.16 Tabla: auditoria
+Logs detallados de seguridad y operaciones críticas (id, fecha, usuario_id, usuario_nombre, accion, modulo, entidad, entidad_id, detalle, datos_antes, datos_despues, ip).
+
+5.17 Tabla: config
+Parámetros del negocio: empresa, nombre_comercial, cuit, direccion, telefono, email, moneda, iva_default, logo, ticket_pie.
+
+
+================================================================================
+6. FLUJOS PRINCIPALES DEL SISTEMA
+================================================================================
+
+6.1 Flujo Transaccional de Venta
+1. Búsqueda y selección de productos (por Nombre, SKU o lector de Código de Barras).
+2. Definición de cantidades y aplicación de descuentos.
+3. Selección o alta rápida de cliente.
+4. Cálculo automático de Subtotal, IVA y Total.
+5. Elección de la modalidad de pago:
+   - Contado: Pago íntegro -> Ingreso directo a caja.
+   - Cuenta Corriente: Saldo deudor -> Registro en cuenta corriente del cliente.
+   - Financiado en Cuotas: Generación de tabla de cuotas con vencimiento mensual sucesivo.
+6. Confirmación atómica dentro de una transacción de Base de Datos:
+   - Registro de la cabecera en ventas.
+   - Guardado de ítems congelados en venta_items.
+   - Descuento de stock en productos.
+   - Creación del movimiento inmutable en inventario_movimientos (Kardex).
+   - Registro del ingreso de dinero en movimientos_caja (si hubo pago).
+   - Generación de comprobantes (Ticket imprimible y enlace de WhatsApp).
+   * Si cualquier paso falla, se ejecuta ROLLBACK automático garantizando consistencia absoluta.
+
+6.2 Anulación de Ventas
+- La venta no se elimina físicamente de la base de datos; su estado pasa a 'anulada'.
+- El stock de todos los ítems involucrados se restituye inmediatamente.
+- Se genera un movimiento de Kardex de tipo 'devolucion' con referencia a la anulación.
+- Se descuenta la deuda generada o se registra el egreso de dinero correspondiente.
+
+6.3 Presupuestos y Cotizaciones
+- Permite cotizar a clientes sin afectar inventario ni generar deuda ni movimientos de caja.
+- Puede transformarse directamente en una venta confirmada con un solo clic.
+
+6.4 Módulo de Compras a Proveedores
+- Permite cargar remitos o facturas de proveedores.
+- Al confirmar la compra:
+  * El stock de los productos aumenta de forma automática.
+  * Se actualiza el costo del producto para mantener márgenes de ganancia precisos.
+  * Se genera el registro de Kardex de tipo 'compra'.
+
+6.5 Arqueo y Cierre de Caja
+- Apertura diaria con fondo fijo o saldo inicial.
+- Discriminación automática entre cobros en efectivo, transferencias y tarjetas.
+- Registro de gastos menores del local o retiros de dinero del dueño.
+- Arqueo ciego de cierre: Comparación automática entre efectivo esperado según sistema vs. efectivo físico contado, calculando sobrante o faltante.
+
+6.6 Integración con WhatsApp
+- Botón directo en la interfaz para abrir WhatsApp con mensajes prellenados hacia el teléfono del cliente:
+  * Envío de ticket digital de compra con detalle de saldo.
+  * Envío de presupuesto en formato legible.
+  * Notificación de estado de cuenta y deuda pendiente.
+  * Recordatorio amigable de vencimiento de cuotas.
+
+
+================================================================================
+7. REGLAS DE NEGOCIO E INTEGRIDAD
+================================================================================
+
+- Regla 1: Toda venta confirmada descuenta stock inmediatamente.
+- Regla 2: Un presupuesto nunca descuenta stock ni genera deuda.
+- Regla 3: Una venta anulada devuelve el stock al inventario y queda registrada para auditoría.
+- Regla 4: El historial del Kardex es inmutable; nunca se edita ni se borra un movimiento existente. Las correcciones se realizan mediante un nuevo movimiento de ajuste.
+- Regla 5: Las ventas históricas conservan los precios y costos del momento exacto de la operación.
+- Regla 6: Los pagos registrados nunca pueden superar el saldo pendiente de una venta.
+- Regla 7: No se permite confirmar ventas con stock insuficiente, salvo habilitación explícita de venta en negativo.
+- Regla 8: Toda operación que involucre venta, stock, Kardex y caja debe ejecutarse dentro de una transacción ACID.
+- Regla 9: La venta interna (ticket de control) y el comprobante fiscal (ARCA/AFIP) se estructuran como conceptos independientes para facilitar la facturación electrónica.
+- Regla 10: Las copias de seguridad y restauraciones sólo pueden ejecutarse por usuarios con rol de dueño.
+
+
+================================================================================
+8. MAPA COMPLETO DE ENDPOINTS DE LA API REST
+================================================================================
+
+MÓDULO          | MÉTODO | ENDPOINT                   | DESCRIPCIÓN
+--------------------------------------------------------------------------------------
+Autenticación   | POST   | /api/auth/login            | Inicio de sesión seguro con rate limit
+Autenticación   | POST   | /api/auth/logout           | Cierre de sesión y limpieza de cookie
+Autenticación   | GET    | /api/auth/me               | Obtención del usuario autenticado actual
+Productos       | GET    | /api/productos             | Listado con filtros (búsqueda, cat, prov, paginación)
+Productos       | GET    | /api/productos/:id         | Ficha del producto y Kardex asociado
+Productos       | POST   | /api/productos             | Alta de producto con subida de imagen (Multer)
+Productos       | PUT    | /api/productos/:id         | Actualización de datos, precios y stock
+Productos       | DELETE | /api/productos/:id         | Baja de producto (con validación de integridad)
+Categorías      | GET    | /api/categorias            | Listado de categorías disponibles
+Categorías      | POST   | /api/categorias            | Alta de categoría técnica
+Categorías      | PUT    | /api/categorias/:id        | Modificación de categoría
+Categorías      | DELETE | /api/categorias/:id        | Eliminación de categoría sin productos asociados
+Clientes        | GET    | /api/clientes              | Listado de clientes con cálculo en vivo de deuda
+Clientes        | GET    | /api/clientes/:id          | Ficha, historial de ventas y recibos de pago
+Clientes        | POST   | /api/clientes              | Registro de nuevo cliente
+Clientes        | PUT    | /api/clientes/:id          | Modificación de datos de cliente
+Proveedores     | GET    | /api/proveedores           | Listado de proveedores y CUITs
+Proveedores     | GET    | /api/proveedores/:id       | Ficha de proveedor y compras registradas
+Proveedores     | POST   | /api/proveedores           | Alta de nuevo proveedor
+Proveedores     | PUT    | /api/proveedores/:id       | Modificación de proveedor
+Ventas          | GET    | /api/ventas                | Listado histórico con filtros de fecha y estado
+Ventas          | GET    | /api/ventas/:id            | Detalle de ticket, ítems, cuotas y pagos
+Ventas          | POST   | /api/ventas                | Creación transaccional de venta y descuento de stock
+Ventas          | POST   | /api/ventas/:id/pagar      | Registro de cobro o abono a cuenta corriente
+Ventas          | DELETE | /api/ventas/:id            | Anulación de venta y devolución de stock
+Cuotas          | GET    | /api/cuotas                | Consulta de cuotas vigentes
+Cuotas          | GET    | /api/cuotas/vencidas       | Alerta de cuotas con fecha límite superada
+Cuotas          | POST   | /api/cuotas/:id/pagar      | Cobro directo de una cuota particular
+Compras         | GET    | /api/compras               | Listado de compras a distribuidores
+Compras         | GET    | /api/compras/:id           | Detalle de factura de compra e ítems
+Compras         | POST   | /api/compras               | Alta de compra con aumento de stock y recálculo de costo
+Inventario      | GET    | /api/inventario/resumen    | Valoración económica del stock y alertas de faltantes
+Inventario      | GET    | /api/inventario/movimientos| Consulta del historial Kardex filtrable
+Inventario      | POST   | /api/inventario/entrada    | Ingreso manual de mercadería
+Inventario      | POST   | /api/inventario/ajuste     | Ajuste por rotura, merma o balance físico
+Caja            | GET    | /api/caja                  | Estado de la caja abierta actual y totales
+Caja            | POST   | /api/caja/abrir            | Apertura de caja con fondo inicial
+Caja            | POST   | /api/caja/movimiento       | Registro manual de ingreso o egreso de caja
+Caja            | POST   | /api/caja/cerrar           | Cierre de caja y registro de arqueo
+Caja            | GET    | /api/caja/historial        | Historial de cajas y arqueos cerrados
+Devoluciones    | GET    | /api/devoluciones          | Listado de devoluciones realizadas
+Devoluciones    | POST   | /api/devoluciones          | Registro de devolución de mercadería
+Analítica       | GET    | /api/analitica             | Métricas financieras, rentabilidad real y ranking
+WhatsApp        | GET    | /api/whatsapp/ticket/:id   | Generación de enlace con texto de ticket
+WhatsApp        | GET    | /api/whatsapp/presupuesto/:id | Enlace con detalle de presupuesto
+WhatsApp        | GET    | /api/whatsapp/deuda/:cliId | Enlace con detalle de deuda y cuotas por cobrar
+Configuración   | GET    | /api/config                | Consulta de parámetros comerciales y fiscales
+Configuración   | PUT    | /api/config                | Actualización de datos de la empresa e IVA
+Backups         | GET    | /api/backup                | Listado de copias de seguridad disponibles
+Backups         | POST   | /api/backup                | Generación de nuevo backup (.zip)
+Backups         | POST   | /api/backup/restaurar      | Restauración controlada de base de datos y fotos
+Auditoría       | GET    | /api/auditoria             | Visualización de registros de eventos de seguridad
+
+
+================================================================================
+9. MIGRACIÓN Y COMPATIBILIDAD CON DATOS EXISTENTES
+================================================================================
+
+Para los sistemas que posean datos previos en archivos JSON dentro de data/:
+- Se provee el script: npm run migrate
+- El proceso lee: users.json, clientes.json, proveedores.json, categorias.json, productos.json, ventas.json, pagos.json e inventario_movimientos.json.
+- Valida la integridad referencial de los registros e inserta todos los datos dentro de data/nicobici.db respetando los tipos de datos y relaciones.
+- Los archivos JSON originales se preservan de forma intacta como respaldo de seguridad.
+
+
+================================================================================
+10. PLAN DE DESARROLLO POR FASES
+================================================================================
+
+- FASE 1: BASE Y NÚCLEO
+  * Configuración de SQLite (nicobici.db) y sistema de migraciones.
+  * Módulo de autenticación segura (sesiones, bcrypt, protección de rutas).
+  * Catálogo de productos, categorías y proveedores.
+  * Padrón de clientes y directorio de contactos.
+
+- FASE 2: INVENTARIO Y MOVIMIENTOS
+  * Control de stock en tiempo real y alertas de stock mínimo.
+  * Kardex inmutable de movimientos.
+  * Ajustes manuales de inventario y registro de motivos.
+  * Módulo de compras a proveedores con actualización automática de costos.
+  * Integración con lector de código de barras.
+
+- FASE 3: PUNTO DE VENTA (POS), COBRANZAS Y CAJA
+  * Pantalla de POS ágil con atajos de teclado (F2 Buscar, F4 Cliente, F8 Cobrar).
+  * Soporte de ventas de contado, cuenta corriente y planes de cuotas.
+  * Control de caja diaria (apertura, movimientos, cierre y arqueo de efectivo).
+  * Emisión de tickets imprimibles y presupuestos.
+
+- FASE 4: COMUNICACIÓN, ANALÍTICA Y SERVICIOS
+  * Integración de enlaces dinámicos con WhatsApp (tickets, presupuestos, recordatorios).
+  * Dashboard con Chart.js (rentabilidad, ventas diarias, ranking de productos y deudores).
+  * Sistema de backups automáticos en formato ZIP y auditoría de eventos.
+  * Preparación de la arquitectura para facturación electrónica (ARCA / AFIP).

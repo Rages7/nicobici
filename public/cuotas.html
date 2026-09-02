@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Control de Cuotas & Vencimientos</title>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Principal</div>
+    <a class="side-link" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas</a>
+    <a class="side-link" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/><path d="M16 3.1a4 4 0 010 7.8"/></svg> Clientes</a>
+        <div class="side-section">Gestión</div>
+    <a class="side-link" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Mostrador / Inicio</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div id="cfgLabel" class="muted" style="color:var(--sidebar-muted);font-size:11px"></div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-logout" style="display:none;background:var(--sidebar-active);color:#fff;border-color:transparent">Salir</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb"><a href="/">Inicio</a> <span>/</span> <span style="color:var(--text);font-weight:600">Cuotas</span></div>
+      <h1>Seguimiento de Cuotas & Vencimientos</h1>
+    </div>
+    <div class="topbar-actions">
+      <button id="btnVerVencidas" class="btn btn-soft">⚠️ Ver Solo Vencidas</button>
+      <button id="btnVerTodas" class="btn btn-ghost">Ver Todas</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="card" style="padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+        <h3 id="lblTituloTabla" style="margin:0;font-size:16px">Todas las Cuotas Financiadas</h3>
+        <input type="text" id="filtroTexto" placeholder="Filtrar por cliente o ticket..." style="width:240px;margin:0;padding:6px 10px"/>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ticket</th>
+              <th>Cliente</th>
+              <th>N° Cuota</th>
+              <th>Vencimiento</th>
+              <th>Monto Nominal</th>
+              <th>Saldo Pendiente</th>
+              <th>Estado</th>
+              <th style="text-align:right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaCuotas"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Pagar Cuota -->
+<div id="modalPagarCuota" class="modal-backdrop" style="display:none">
+  <div class="modal" style="max-width:640px">
+    <h3>Cobrar Cuota</h3>
+    <form id="formPagarCuota">
+      <input type="hidden" id="pagoCuotaId"/>
+      <div id="pagoCuotaDetalle" style="margin-bottom:12px;font-size:14px"></div>
+      <label>Monto a Cobrar ($)</label>
+      <input type="number" id="pagoCuotaMonto" min="0.01" step="50" required style="font-size:18px;font-weight:700"/>
+      <label style="margin-top:10px">Método de Pago</label>
+      <select id="pagoCuotaMetodo">
+        <option value="efectivo">Efectivo</option>
+        <option value="transferencia">Transferencia Bancaria</option>
+        <option value="tarjeta">Tarjeta de Débito/Crédito</option>
+        <option value="mercado_pago">Mercado Pago</option>
+      </select>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('modalPagarCuota').style.display='none'">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Registrar Pago</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+let todasLasCuotas = [];
+let soloVencidas = false;
+
+async function cargarCuotas() {
+  const url = soloVencidas ? '/api/cuotas/vencidas' : '/api/cuotas';
+  const res = await fetch(url);
+  const data = await res.json();
+  todasLasCuotas = data.data || [];
+  renderCuotas();
+}
+
+function renderCuotas() {
+  const q = (document.getElementById('filtroTexto').value || '').toLowerCase().trim();
+  const hoy = new Date().toISOString().slice(0, 10);
+  let lista = todasLasCuotas;
+
+  if (q) {
+    lista = lista.filter(c => (c.clienteNombre + ' ' + c.ticketNro).toLowerCase().includes(q));
+  }
+
+  const tbody = document.getElementById('tablaCuotas');
+  tbody.innerHTML = lista.map(c => {
+    const isVencida = c.saldo > 0.01 && c.vencimiento < hoy;
+    const badgeColor = c.estado === 'pagada' ? 'badge-green' : (isVencida ? 'badge-red' : 'badge-amber');
+    const estadoTexto = isVencida ? 'VENCIDA' : c.estado.toUpperCase();
+
+    return `
+      <tr>
+        <td><strong>${c.ticketNro}</strong></td>
+        <td>${c.clienteNombre}</td>
+        <td>Cuota #${c.numero}</td>
+        <td style="${isVencida ? 'color:var(--danger);font-weight:700' : ''}">${c.vencimiento}</td>
+        <td>$${c.montoOriginal.toLocaleString('es-AR')}</td>
+        <td style="font-weight:700;color:${c.saldo > 0.01 ? 'var(--danger)' : 'var(--success)'}">$${c.saldo.toLocaleString('es-AR')}</td>
+        <td><span class="badge ${badgeColor}">${estadoTexto}</span></td>
+        <td style="text-align:right">
+          ${c.saldo > 0.01 ? `<button class="btn btn-primary btn-sm" onclick="abrirCobro(${c.id}, '${c.ticketNro}', '${c.clienteNombre}', ${c.saldo}, ${c.numero})">💵 Cobrar</button>` : '<span class="muted">Saldada</span>'}
+        </td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="8" style="text-align:center" class="muted">No hay cuotas que coincidan.</td></tr>';
+}
+
+function abrirCobro(id, ticket, cliente, saldo, n) {
+  document.getElementById('pagoCuotaId').value = id;
+  document.getElementById('pagoCuotaDetalle').innerHTML = `
+    <strong>${cliente}</strong><br>
+    Ticket: <code>${ticket}</code> — Cuota #${n}<br>
+    Saldo pendiente: <strong>$${saldo.toLocaleString('es-AR')}</strong>
+  `;
+  document.getElementById('pagoCuotaMonto').value = saldo;
+  document.getElementById('modalPagarCuota').style.display = 'flex';
+}
+
+document.getElementById('formPagarCuota').onsubmit = async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('pagoCuotaId').value;
+  const monto = Number(document.getElementById('pagoCuotaMonto').value);
+  const metodo = document.getElementById('pagoCuotaMetodo').value;
+
+  const res = await fetch(`/api/cuotas/${id}/pagar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ monto, metodo })
+  });
+
+  const data = await res.json();
+  if (!data.ok) return alert(data.error || 'Error al cobrar cuota');
+  document.getElementById('modalPagarCuota').style.display = 'none';
+  alert('Pago de cuota registrado exitosamente.');
+  cargarCuotas();
+};
+
+document.getElementById('btnVerVencidas').onclick = () => {
+  soloVencidas = true;
+  document.getElementById('lblTituloTabla').innerText = '⚠️ Cuotas Vencidas con Saldo Pendiente';
+  cargarCuotas();
+};
+
+document.getElementById('btnVerTodas').onclick = () => {
+  soloVencidas = false;
+  document.getElementById('lblTituloTabla').innerText = 'Todas las Cuotas Financiadas';
+  cargarCuotas();
+};
+
+document.getElementById('filtroTexto').oninput = renderCuotas;
+
+cargarCuotas();
+</script>
+</body>
+</html>

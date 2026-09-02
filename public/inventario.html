@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Control de Inventario & Kardex</title>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Principal</div>
+    <a class="side-link" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas</a>
+    <a class="side-link" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/><path d="M16 3.1a4 4 0 010 7.8"/></svg> Clientes</a>
+        <div class="side-section">Gestión</div>
+    <a class="side-link active" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Mostrador / Inicio</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div id="cfgLabel" class="muted" style="color:var(--sidebar-muted);font-size:11px"></div>
+    </div>
+    <button id="btn-logout" class="btn btn-ghost btn-sm" style="display:none;background:var(--sidebar-active);color:#fff;border-color:transparent">Salir</button>
+  </div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+  <div>
+    <div class="breadcrumb"><a href="/">Inicio</a> <span>/</span> <span style="color:var(--text);font-weight:600">Inventario</span></div>
+    <h1>Control de Stock & Movimientos Kardex</h1>
+  </div>
+  <div class="topbar-actions">
+    <span class="nav-user badge badge-blue" style="display:none;font-size:12px;font-weight:700"></span>
+    <a href="/productos.html" class="btn btn-ghost">+ Ver Catálogo</a>
+    <button class="btn btn-ghost btn-sm btn-logout" style="display:none;color:var(--danger)" title="Cerrar sesión">🚪 Salir</button>
+  </div>
+</div>
+
+<div class="content">
+  <!-- Realtime Inventory KPIs -->
+  <div class="kpis" id="kpis">
+    <div class="card card-pad" style="text-align:center;grid-column:1/-1"><span class="spinner"></span> Cargando valorización de inventario...</div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="card" style="margin-top:16px;padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+    <div style="flex:1;min-width:200px">
+      <label>Buscar en inventario<div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" placeholder="Buscar por producto, código SKU..." style="margin-top:0" autocomplete="off"/></div></label>
+    </div>
+    <label style="display:flex;gap:6px;align-items:center;cursor:pointer;margin-bottom:6px">
+      <input type="checkbox" id="soloBajo"/> Mostrar únicamente stock crítico (≤ mín)
+    </label>
+    <button id="btn-search" class="btn btn-ghost">Filtrar</button>
+  </div>
+
+  <!-- Grid de Productos y Existencias -->
+  <div id="grid" class="product-grid" style="margin-top:16px">Cargando existencias…</div>
+
+  <!-- Kardex General -->
+  <div class="card" style="margin-top:20px">
+    <div class="card-header">
+      <div>
+        <h3>📋 Kardex General — Últimos Movimientos</h3>
+        <div class="modal-subtitle">Trazabilidad completa de compras, ventas y ajustes manuales</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="fTipo" style="margin-top:0;font-size:12px">
+          <option value="">Todos los tipos</option>
+          <option value="entrada">Entradas (Compras/Ingreso)</option>
+          <option value="venta">Ventas (Salidas)</option>
+          <option value="ajuste">Ajustes de inventario</option>
+          <option value="devolucion">Devoluciones</option>
+        </select>
+        <button id="btn-kardex" class="btn btn-ghost btn-sm">↻ Refrescar</button>
+      </div>
+    </div>
+    <div id="kardex" class="table-wrap" style="border:0">Cargando movimientos…</div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- Modal Entrada / Ajuste de Stock -->
+<div id="modal" class="modal-back hidden">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="modal-icon blue" id="modalMovIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg></div>
+        <div>
+          <h3 id="mtitle">Registrar Movimiento de Stock</h3>
+          <div class="modal-subtitle" id="msubtitle">Actualizar existencias del producto</div>
+        </div>
+      </div>
+      <button id="btn-x-modal" class="modal-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="msg"></div>
+      <form id="form" class="form-row">
+        <div id="field-qty">
+          <label>Cantidad de Unidades <span class="req">*</span>
+            <input name="qty" type="number" required placeholder="Ej: 5 (o -2 para restar en ajuste)" style="font-size:16px;font-weight:700"/>
+          </label>
+        </div>
+        <label>Motivo / Justificación <span class="req">*</span>
+          <input name="motivo" required placeholder="Ej: Factura Proveedor #120, Conteo físico, Merma..."/>
+        </label>
+        <div id="field-costo" style="display:none">
+          <label>Nuevo Costo Unitario de Compra (opcional)
+            <input name="costo" type="number" step="any" placeholder="Actualizar costo de reposición"/>
+          </label>
+          <div class="form-hint">Si ingresas un costo, se actualizará el costo base del producto para futuros cálculos de margen.</div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button type="button" id="btn-cancel" class="btn btn-ghost">Cancelar</button>
+      <button type="submit" form="form" class="btn btn-primary" style="min-width:130px">✓ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Kardex de un Producto Específico -->
+<div id="modalKardexProd" class="modal-back hidden">
+  <div class="modal" style="max-width:1100px">
+    <div class="modal-head">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="modal-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg></div>
+        <div>
+          <h3 id="kardexProdTitle">Kardex de Producto</h3>
+          <div class="modal-subtitle" id="kardexProdSubtitle">Historial de movimientos</div>
+        </div>
+      </div>
+      <button id="btn-x-kardexprod" class="modal-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div id="kardexProdContent" style="max-height:360px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" id="btn-close-kardexprod" class="btn btn-primary">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<nav class="mobile-nav">
+  <a href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg><span>Dashboard</span></a>
+  <a href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg><span>Productos</span></a>
+  <a href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8"/></svg><span>Ventas</span></a>
+  <a href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg><span>Clientes</span></a>
+  <a href="#" class="btn-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="color:var(--danger)">Salir</span></a>
+</nav>
+
+<script src="/js/app.js"></script>
+<script>
+let productos = [];
+let modo = null, prodId = null;
+
+async function loadResumen() {
+  const r = await fetch('/api/inventario/resumen').then(x => x.json()).catch(() => null);
+  if (!r || !r.ok) return;
+  const d = r.data;
+
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi kpi-blue">
+      <div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg></div>
+      <div class="kpi-label">Artículos en Catálogo</div>
+      <div class="kpi-value">${d.totalProductos}</div>
+      <div class="kpi-sub">${d.unidadesTotales} unidades físicas en stock</div>
+    </div>
+    <div class="kpi kpi-blue">
+      <div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M16 12H8"/></svg></div>
+      <div class="kpi-label">Valorización a Costo</div>
+      <div class="kpi-value">${money(d.valorTotal)}</div>
+      <div class="kpi-sub">Potencial de venta: ${money(d.valorVenta)}</div>
+    </div>
+    <div class="kpi kpi-green">
+      <div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+      <div class="kpi-label">Ganancia Bruta Proyectada</div>
+      <div class="kpi-value" style="color:var(--success)">${money(d.gananciaPotencial)}</div>
+      <div class="kpi-sub">Al liquidar el stock actual</div>
+    </div>
+    <div class="kpi ${d.stockBajo.length ? 'kpi-red' : 'kpi-green'}">
+      <div class="kpi-icon ${d.stockBajo.length ? 'red' : 'green'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="kpi-label">Alertas de Reposición</div>
+      <div class="kpi-value" style="color:${d.stockBajo.length ? 'var(--danger)' : 'var(--success)'}">${d.stockBajo.length}</div>
+      <div class="kpi-sub">${d.sinStock.length} artículos agotados (0)</div>
+    </div>
+  `;
+}
+
+async function loadProductos() {
+  const q = document.getElementById('q').value.toLowerCase().trim();
+  const solo = document.getElementById('soloBajo').checked;
+  let prods = productos;
+  if (q) prods = prods.filter(p => (p.nombre + ' ' + (p.sku || '')).toLowerCase().includes(q));
+  if (solo) prods = prods.filter(p => (p.stock || 0) <= (p.stockMin || 2));
+
+  const cats = await fetch('/api/categorias').then(x => x.json()).then(j => Object.fromEntries((j.data || []).map(c => [c.id, c]))).catch(() => ({}));
+  const grid = document.getElementById('grid');
+
+  if (!prods.length) {
+    grid.innerHTML = '<div class="card muted" style="padding:28px;text-align:center;grid-column:1/-1">No hay productos que coincidan con los filtros actuales.</div>';
+    return;
+  }
+
+  grid.innerHTML = prods.map(p => {
+    const cat = cats[p.categoriaId];
+    const s = Number(p.stock) || 0;
+    const m = Number(p.stockMin) || 2;
+    const pct = m ? Math.min(100, Math.round((s / m) * 40 + 20)) : 100;
+    const color = s === 0 ? 'var(--danger)' : s <= m ? 'var(--accent)' : 'var(--success)';
+    const valorStock = s * (p.costo || 0);
+
+    return `
+      <div class="card product-card" style="${s === 0 ? 'border-color:#fecaca' : s <= m ? 'border-color:#fde68a' : ''}">
+        <div style="position:relative">
+          ${p.imagen ? `<img src="${esc(p.imagen)}" alt="${esc(p.nombre)}" onerror="this.style.display='none'"/>` : `
+            <div style="aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--surface-2);border-bottom:1px solid var(--border)">
+              <span style="font-weight:800;font-size:14px;color:var(--muted)">${esc(p.sku || 'NB')}</span>
+            </div>
+          `}
+          <div style="position:absolute;top:8px;right:8px">${badgeStock(p)}</div>
+        </div>
+        <div class="pc-body">
+          <div style="font-weight:800;font-size:14px;line-height:1.2">${esc(p.nombre)}</div>
+          <div class="muted" style="font-size:11px">${p.sku ? `SKU: ${esc(p.sku)} · ` : ''}${cat ? esc(cat.nombre) : ''}</div>
+          
+          <div class="stock-bar" style="height:6px;margin-top:8px"><div class="stock-fill" style="width:${pct}%;background:${color}"></div></div>
+          
+          <div style="display:grid;grid-template-columns:1fr auto;gap:4px;font-size:12px;margin-top:8px;padding:8px 10px;background:var(--surface-2);border-radius:6px">
+            <span class="muted">Stock Disponible</span><b class="num">${s} u (mín ${m})</b>
+            <span class="muted">Valor a Costo</span><b class="num">${money(valorStock)}</b>
+          </div>
+
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <button class="btn btn-primary btn-sm" style="flex:1" onclick="abrirEntrada('${p.id}', '${esc(p.nombre)}')">+ Entrada</button>
+            <button class="btn btn-ghost btn-sm" onclick="abrirAjuste('${p.id}', '${esc(p.nombre)}')">Ajuste</button>
+            <button class="btn btn-ghost btn-sm" onclick="verKardexProd('${p.id}')">📋</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function loadKardex() {
+  const tipo = document.getElementById('fTipo').value;
+  const r = await fetch('/api/inventario/movimientos?tipo=' + encodeURIComponent(tipo)).then(x => x.json()).catch(() => ({ data: [] }));
+  const movs = r.data || [];
+  const box = document.getElementById('kardex');
+
+  if (!movs.length) {
+    box.innerHTML = '<div class="muted" style="padding:24px;text-align:center">No hay movimientos registrados para el filtro seleccionado.</div>';
+    return;
+  }
+
+  box.innerHTML = `
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Fecha y Hora</th>
+          <th>Producto</th>
+          <th>Tipo</th>
+          <th class="num">Movimiento</th>
+          <th class="num">Stock Resultante</th>
+          <th>Motivo / Referencia</th>
+        </tr>
+      </thead>
+      <tbody>` + movs.slice(0, 80).map(m => `
+        <tr>
+          <td class="mono" style="font-size:11px">${m.fecha ? m.fecha.slice(0, 16).replace('T', ' ') : '—'}</td>
+          <td style="font-weight:600">${esc(m.productoNombre || 'Producto')}</td>
+          <td><span class="badge ${m.tipo === 'venta' ? 'badge-red' : m.tipo === 'entrada' ? 'badge-green' : 'badge-amber'}">${esc(m.tipo)}</span></td>
+          <td class="num font-bold" style="color:${m.cantidad > 0 ? 'var(--success)' : 'var(--danger)'}">${m.cantidad > 0 ? '+' : ''}${m.cantidad}</td>
+          <td class="num font-bold">${m.stockAntes} → ${m.stockDespues}</td>
+          <td style="font-size:12px">${esc(m.motivo || 'Operación')}</td>
+        </tr>
+      `).join('') + `</tbody>
+    </table>
+  `;
+}
+
+async function loadAll() {
+  productos = await fetch('/api/productos?limit=300').then(x => x.json()).then(j => j.data || []).catch(() => []);
+  await loadResumen();
+  await loadProductos();
+  await loadKardex();
+}
+
+// Modales Entrada / Ajuste
+const modal = document.getElementById('modal');
+function abrirEntrada(id, nombre) {
+  modo = 'entrada';
+  prodId = id;
+  document.getElementById('mtitle').textContent = '+ Entrada de Stock (Ingreso)';
+  document.getElementById('msubtitle').textContent = nombre || 'Artículo';
+  document.getElementById('field-costo').style.display = 'block';
+  modal.classList.remove('hidden');
+}
+
+function abrirAjuste(id, nombre) {
+  modo = 'ajuste';
+  prodId = id;
+  document.getElementById('mtitle').textContent = 'Ajuste Manual de Stock';
+  document.getElementById('msubtitle').textContent = nombre || 'Artículo';
+  document.getElementById('field-costo').style.display = 'none';
+  modal.classList.remove('hidden');
+}
+
+function closeModal() {
+  modal.classList.add('hidden');
+  document.getElementById('form').reset();
+  document.getElementById('msg').innerHTML = '';
+}
+
+document.getElementById('btn-cancel')?.addEventListener('click', closeModal);
+document.getElementById('btn-x-modal')?.addEventListener('click', closeModal);
+modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+document.getElementById('form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const qty = Number(fd.get('qty'));
+  const motivo = fd.get('motivo');
+  const costo = fd.get('costo');
+
+  let url, body;
+  if (modo === 'entrada') {
+    url = '/api/inventario/entrada';
+    body = { productoId: prodId, qty, motivo, costo: costo ? Number(costo) : undefined };
+  } else {
+    url = '/api/inventario/ajuste';
+    body = { productoId: prodId, qtyDelta: qty, motivo };
+  }
+
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(x => x.json());
+
+  if (!r.ok) {
+    document.getElementById('msg').innerHTML = `<div class="alert alert-err">${esc(r.error)}</div>`;
+    return;
+  }
+
+  showToast('Movimiento registrado correctamente ✓', 'success');
+  closeModal();
+  await loadAll();
+});
+
+// Modal Kardex Específico
+const modalKardexProd = document.getElementById('modalKardexProd');
+async function verKardexProd(id) {
+  const r = await fetch('/api/inventario/movimientos?productoId=' + id).then(x => x.json()).catch(() => ({ data: [] }));
+  const p = productos.find(x => x.id === id) || { nombre: 'Producto' };
+  const movs = r.data || [];
+
+  document.getElementById('kardexProdTitle').textContent = `Kardex — ${p.nombre}`;
+  document.getElementById('kardexProdSubtitle').textContent = `Historial particular del producto`;
+
+  const box = document.getElementById('kardexProdContent');
+  if (!movs.length) {
+    box.innerHTML = '<div class="muted" style="padding:28px;text-align:center">No hay movimientos particulares para este artículo.</div>';
+  } else {
+    box.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr><th>Fecha</th><th>Tipo</th><th class="num">Movimiento</th><th class="num">Stock</th><th>Motivo</th></tr>
+        </thead>
+        <tbody>` + movs.slice(0, 40).map(m => `
+          <tr>
+            <td class="mono" style="font-size:11px">${m.fecha ? m.fecha.slice(0, 16).replace('T', ' ') : '—'}</td>
+            <td><span class="badge ${m.tipo === 'entrada' ? 'badge-green' : m.tipo === 'salida' ? 'badge-red' : 'badge-blue'}">${esc(m.tipo)}</span></td>
+            <td class="num font-bold" style="color:${m.cantidad > 0 ? 'var(--success)' : 'var(--danger)'}">${m.cantidad > 0 ? '+' : ''}${m.cantidad}</td>
+            <td class="num">${m.stockAntes} → <b>${m.stockDespues}</b></td>
+            <td style="font-size:12px">${esc(m.motivo || 'Operación')}</td>
+          </tr>
+        `).join('') + `</tbody>
+      </table>
+    `;
+  }
+  modalKardexProd.classList.remove('hidden');
+}
+
+document.getElementById('btn-close-kardexprod')?.addEventListener('click', () => modalKardexProd.classList.add('hidden'));
+document.getElementById('btn-x-kardexprod')?.addEventListener('click', () => modalKardexProd.classList.add('hidden'));
+modalKardexProd?.addEventListener('click', (e) => { if (e.target === modalKardexProd) modalKardexProd.classList.add('hidden'); });
+
+// Event Listeners
+document.getElementById('btn-search')?.addEventListener('click', loadProductos);
+document.getElementById('q')?.addEventListener('input', () => { setTimeout(loadProductos, 250); });
+document.getElementById('soloBajo')?.addEventListener('change', loadProductos);
+document.getElementById('btn-kardex')?.addEventListener('click', loadKardex);
+document.getElementById('fTipo')?.addEventListener('change', loadKardex);
+
+refreshNav().then(loadAll);
+</script>
+</body>
+</html>
+

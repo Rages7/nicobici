@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Acceso de Administración</title>
+<link rel="stylesheet" href="/css/style.css"/>
+<style>
+body {
+  background: radial-gradient(circle at top right, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 32px;
+}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div style="text-align:center;margin-bottom:24px">
+    <div class="logo-mark" style="width:52px;height:52px;font-size:20px;margin:0 auto 12px;border-radius:14px">NB</div>
+    <h2 style="font-size:22px;font-weight:900;letter-spacing:-0.03em">Nicobici POS & ERP</h2>
+    <div class="muted" style="font-size:13px;margin-top:4px">Portal de Acceso para Dueños y Administradores</div>
+  </div>
+
+  <div id="msg"></div>
+
+  <form id="f" class="form-row" style="margin-top:16px">
+    <label>Usuario
+      <input name="email" type="text" required placeholder="admin" autocomplete="username" style="font-size:14px"/>
+    </label>
+    <label>Contraseña
+      <input name="password" type="password" required placeholder="••••••••" autocomplete="current-password" style="font-size:14px"/>
+    </label>
+    
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:14px;font-weight:700;margin-top:8px">
+      Iniciar Sesión →
+    </button>
+  </form>
+
+  <div style="margin-top:20px;padding:12px;background:var(--surface-2);border-radius:var(--radius);font-size:11px" class="muted">
+    💡 <b>Credenciales:</b><br/>
+    Usuario: <code>admin</code> / Contraseña: <code>admin</code>
+  </div>
+
+  <div style="text-align:center;margin-top:20px;font-size:12px">
+    <a href="/register.html" style="font-weight:600">Crear cuenta de administrador adicional →</a>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData(e.target).entries());
+  const r = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(x => x.json()).catch(() => ({ ok: false, error: 'Error de conexión con el servidor' }));
+
+  if (!r.ok) {
+    document.getElementById('msg').innerHTML = `<div class="alert alert-err">${esc(r.error)}</div>`;
+    return;
+  }
+
+  showToast('¡Bienvenido! Redirigiendo...', 'success');
+  setTimeout(() => {
+    location.href = '/dashboard.html';
+  }, 400);
+});
+</script>
+</body>
+</html>
+

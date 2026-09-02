@@ -1,0 +1,118 @@
+DOCUMENTACIÓN INTEGRAL DEL PROYECTO: NICOBICI---1. DESCRIPCIÓN GENERAL DEL PROYECTONicobici es un sistema de gestión comercial y Punto de Venta (POS) diseñado para un pequeño comercio dedicado a la venta de bicicletas, motos, repuestos, accesorios, muebles y productos relacionados.El sistema está pensado principalmente para ser utilizado por el dueño del negocio, por lo que prioriza:- Simplicidad de uso.- Funcionamiento rápido.- Instalación sencilla.- Bajo consumo de recursos.- Funcionamiento local o en un servidor Node.js pequeño.- Control de productos y stock.- Registro de ventas.- Cuentas corrientes.- Control de pagos y cuotas.- Kardex de inventario.- Control de caja.- Compras a proveedores.- Presupuestos.- Tickets.- Estadísticas.- Copias de seguridad.- Auditoría básica.- Integración opcional con WhatsApp.El sistema debe evitar complejidad innecesaria y estar orientado a las necesidades reales de un comercio pequeño.---2. OBJETIVOS DEL SISTEMA2.1 Objetivo principalCentralizar en un único sistema la administración del comercio, permitiendo controlar productos, ventas, clientes, proveedores, stock, caja y cuentas corrientes.2.2 Objetivos específicos- Registrar productos y categorías.- Controlar cantidades disponibles.- Registrar costos y precios de venta.- Registrar ventas.- Descontar stock automáticamente.- Registrar pagos.- Administrar ventas fiadas o financiadas.- Controlar deudas de clientes.- Registrar cuotas y vencimientos.- Registrar compras de mercadería.- Actualizar stock mediante compras.- Mantener un historial Kardex.- Administrar caja diaria.- Generar tickets y presupuestos.- Consultar estadísticas.- Realizar copias de seguridad.- Mantener un registro de operaciones importantes.- Facilitar el contacto con clientes mediante WhatsApp.---3. ARQUITECTURA Y STACK TECNOLÓGICONicobici utilizará una arquitectura Monolito Ligero + REST API + SPA/Web App, adecuada para un comercio pequeño.Backend- Node.js.- Express 4.x.- JavaScript.- REST API.Base de datosSe recomienda utilizar:SQLiteen lugar de múltiples archivos JSON como almacenamiento principal.La base de datos estará ubicada, por ejemplo, en:data/nicobici.dbSQLite resulta adecuado para este proyecto porque:- No requiere instalar un servidor de base de datos.- Es liviano.- Funciona perfectamente en equipos pequeños.- Permite transacciones.- Evita muchos problemas de concurrencia de archivos JSON.- Facilita realizar copias de seguridad.- Es compatible con Linux, Windows, Android/Termux y servidores Node.js.Los archivos JSON pueden mantenerse únicamente para:- Importaciones.- Exportaciones.- Backups.- Migraciones.- Configuraciones puntuales.Seguridad- express-session.- Cookie de sesión segura.- bcryptjs para contraseñas.- Helmet para cabeceras HTTP.- Validación de datos.- Rate limiting en login.- Protección CSRF cuando corresponda.- Variables de entorno para secretos.Frontend- HTML5.- CSS3.- JavaScript Vanilla.- Fetch API.- Chart.js mediante CDN.No se requiere React, Vue o Angular para esta versión.ImágenesLas imágenes de productos podrán almacenarse localmente:public/uploads/Se recomienda utilizar:- JPG.- PNG.- WebP.Con límite de tamaño y validación del archivo.---4. ESTRUCTURA DEL PROYECTOnicobici/
+ data/
+ nicobici.db
+ backups/
+ public/
+ css/
+ style.css
+ js/
+ app.js
+ ventas.js
+ productos.js
+ clientes.js
+ inventario.js
+ caja.js
+ dashboard.js
+ uploads/
+ index.html
+ login.html
+ dashboard.html
+ ventas.html
+ productos.html
+ categorias.html
+ clientes.html
+ proveedores.html
+ compras.html
+ inventario.html
+ caja.html
+ presupuesto.html
+ ticket.html
+ cuotas.html
+ configuracion.html
+ src/
+ server.js
+ models/
+ db.js
+ init.js
+ migrations.js
+ middleware/
+ auth.js
+ validation.js
+ security.js
+ routes/
+       
+ auth.js
+       
+ productos.js
+       
+ categorias.js
+       
+ clientes.js
+       
+ proveedores.js
+       
+ ventas.js
+       
+ pagos.js
+       
+ cuotas.js
+       
+ compras.js
+       
+ inventario.js
+       
+ caja.js
+       
+ analitica.js
+       
+ whatsapp.js
+       
+ auditoria.js
+       
+ backup.js
+       
+ config.js
+ .env
+ .gitignore
+ package.json
+ README.md
+ info.txt---5. MODELO DE DATOSLa aplicación utilizará SQLite como base de datos principal.---5.1 UsuariosAunque actualmente el sistema será utilizado solamente por el dueño, se mantiene una tabla de usuarios para autenticación y para permitir ampliar el sistema posteriormente.Campos:idnombreemailpassword_hashrolactivocreadoultimo_accesoRol inicial:duenoNo es necesario implementar un complejo sistema de permisos para empleados en esta versión.---5.2 ClientesCampos:idnombreapellidotelefonodniemaildireccionnotascreadoactualizadoactivoEl teléfono será especialmente importante para la integración con WhatsApp.---5.3 ProveedoresCampos:idnombrecuittelefonoemaildireccionnotascreadoactualizadoactivo---5.4 CategoríasCampos:idnombreslugcodigodescripcioncreadoactivoEjemplos:BIC - BicicletasMOT - MotosREP - RepuestosACC - AccesoriosMUE - Muebles---5.5 ProductosCampos:idcategoria_idproveedor_idnombredescripcionskucodigo_barraspreciocostostockstock_minimoivaimagenactivocreadoactualizadoDiferencia entre SKU y código de barrasEl SKU será el código interno del comercio:BIC-MTB-001Mientras que el código de barras será el código comercial:7791234567890Ambos podrán utilizarse para buscar productos.---5.6 Historial de preciosSe almacenará el historial de modificaciones importantes del precio.Campos:idproducto_idprecio_anteriorprecio_nuevocosto_anteriorcosto_nuevofechaEsto permitirá saber cómo evolucionó el precio de un producto.---5.7 VentasCampos:idticket_nrocliente_idcliente_nombrecliente_telefonofechasubtotaliva_totaltotalpagadodebeestadocuotas_totalvendedor_idcreadoanuladafecha_anulacionmotivo_anulacionEstados:pagadaparcialpendienteanuladaLa información histórica importante de la venta deberá conservarse aunque posteriormente cambie el producto.---5.8 Detalle de ventaSe recomienda separar los productos vendidos de la cabecera de venta.Tabla:venta_itemsCampos:idventa_idproducto_idnombreskuprecio_unitcosto_unitivacantidadsubtotaliva_amounttotal_itemEsto permite conservar el precio y costo histórico.Por ejemplo, si hoy un producto cuesta:$150.000y mañana aumenta a:$180.000una venta anterior continuará mostrando:Precio vendido: $150.000---5.9 PagosCampos:idventa_idcliente_idmontometodoreferenciafechaMétodos iniciales:efectivotransferenciatarjetamercado_pagootro---5.10 CuotasCampos:idventa_idnumeromonto_originalmonto_pagadosaldovencimientoestadofecha_pagometodo_pagoEstados:pendienteparcialpagadavencidaEjemplo:Cuota 1Monto: $30.000Pagado: $10.000Saldo: $20.000Estado: parcial---5.11 ComprasSe agrega un módulo específico de compras.Tabla:comprasCampos:idproveedor_idnumerofechasubtotaliva_totaltotalpagadodebeestadonotascreado---5.12 Detalle de comprasTabla:compra_itemsCampos:idcompra_idproducto_idcantidadcosto_unitsubtotalivatotalAl confirmar una compra:Compra   
+Aumenta stock   
+Actualiza costo   
+Genera Kardex---5.13 KardexTabla:inventario_movimientosCampos:idproducto_idproducto_nombretipocantidadstock_antesstock_despuesmotivoreferencia_idfechausuario_idTipos:entradaventaajustedevolucioncompraRegla importanteLos movimientos del Kardex no se deben editar ni eliminar.Si existe un error, se genera un nuevo movimiento de corrección.Ejemplo:Entrada +10Venta -2Ajuste -1Resultado:Stock = 7---5.14 CajaSe incorpora un módulo de caja.Tablas:cajasmovimientos_cajacierres_cajaAperturaEjemplo:Caja del 31/08/2026Monto inicial:$50.000MovimientosVenta efectivo       +$20.000Pago deuda           +$10.000Retiro               -$5.000Gasto                -$2.000CierreEl sistema calculará:Efectivo esperadoEfectivo contadoDiferenciaEjemplo:Esperado: $73.000Contado:  $72.500Diferencia:-$500---5.15 DevolucionesLas devoluciones no deberán modificar directamente una venta histórica.Se registrará:devolucionesdevolucion_itemsUna devolución podrá:- devolver productos al stock.- generar movimiento Kardex.- generar saldo a favor.- devolver dinero.- corregir una deuda.---5.16 Métodos de pagoLos métodos de pago podrán configurarse desde el sistema.Ejemplos:EfectivoTransferenciaTarjeta débitoTarjeta créditoMercado PagoOtro---5.17 AuditoríaTabla:auditoriaCampos:idfechausuario_idusuario_nombreaccionmoduloentidadentidad_iddetalledatos_antesdatos_despuesipEjemplo:Acción:MODIFICAR_PRODUCTOProducto:Bicicleta MTBPrecio anterior:$450.000Precio nuevo:$480.000---5.18 ConfiguraciónTabla:configDatos:empresanombre_comercialcuitdirecciontelefonoemailmonedaiva_defaultlogoticket_pie---6. FLUJO DE VENTAEl flujo de una venta será:Seleccionar productos        
+Agregar cantidades        
+Seleccionar cliente        
+Calcular subtotal        
+Calcular IVA        
+Calcular total        
+Seleccionar forma de pago        
+Registrar pago        
+Calcular deuda        
+Registrar venta        
+Descontar stock        
+Generar Kardex        
+Registrar movimiento de caja        
+Generar ticketTodo el proceso de confirmación deberá ejecutarse dentro de una transacción de base de datos.Si algo falla:ROLLBACKNo deberá quedar una venta registrada con el stock incorrecto.---7. VENTA DE CONTADOEjemplo:Total:$100.000Pagado:$100.000Debe:$0Estado:pagadaEl sistema:Venta
+Stock -1
+Kardex
+Caja +$100.000---8. VENTA A CUENTAEjemplo:Total:$100.000Pagado:$30.000Debe:$70.000Estado:parcialEl sistema genera la deuda correspondiente.---9. VENTA EN CUOTASEjemplo:Total: $120.0006 cuotas:$20.000Se generan:Cuota 1 → $20.000Cuota 2 → $20.000Cuota 3 → $20.000Cuota 4 → $20.000Cuota 5 → $20.000Cuota 6 → $20.000Cada cuota tendrá:- vencimiento.- estado.- monto pagado.- saldo.---10. REGISTRO DE PAGOSCuando el cliente realiza un pago:Pago
+Registrar en pagos
+Actualizar venta
+Actualizar cuota
+Actualizar deuda
+Registrar movimiento de cajaLos pagos parciales se aplicarán primero a las cuotas más antiguas pendientes, salvo que el dueño indique otra cosa.---11. ANULACIÓN DE VENTACuando se anula una venta:Venta
+Estado = anulada
+Restituir stock
+Generar Kardex de devolución
+Corregir deuda
+Corregir caja si correspondeLa venta original no se elimina físicamente.Esto permite conservar la trazabilidad.---12. PRESUPUESTOSUn presupuesto:- No genera deuda.- No genera pago.- No modifica caja.- No descuenta stock.- No modifica Kardex.Solamente registra:ClienteProductosCantidadesPreciosSubtotalIVATotalValidezFechaEl presupuesto podrá convertirse posteriormente en una venta.---13. CONTROL DE INVENTARIOEl stock se modificará automáticamente mediante:Compra       → +Venta        → -Devolución   → +Ajuste       → +/-El sistema mostrará:Stock actualStock mínimoProductos agotadosProductos con stock bajoValor del inventario---14. AJUSTE DE STOCKEl dueño podrá realizar un ajuste manual.Ejemplo:Stock registrado:10Stock físico:8Ajuste:-2Motivo:Diferencia de inventarioSe generará:Kardex:Ajuste -2---15. COMPRASEl módulo permitirá registrar compras realizadas a proveedores.Ejemplo:Proveedor:Proveedor XProducto:Cadena ShimanoCantidad:20Costo unitario:$10.000Total:$200.000Al confirmar:Stock +20Costo actualizadoKardex +20---16. COSTOS Y RENTABILIDADCada producto tendrá:CostoPrecioLa ganancia estimada será:Ganancia = precio de venta - costoEjemplo:Venta:$150.000Costo:$100.000Ganancia:$50.000El costo utilizado en una venta quedará guardado en "venta_items", por lo que el sistema podrá calcular la rentabilidad histórica.Para compras futuras se podrá utilizar costo promedio ponderado si resulta necesario.---17. DASHBOARDEl dashboard mostrará:VentasVentas del díaVentas del mesCantidad de ventasTicket promedioRentabilidadGanancia estimadaMargenProductos más rentablesInventarioValor del stockProductos agotadosStock bajoCuentas corrientesTotal por cobrarClientes con deudaCuotas vencidasCajaCaja actualIngresosEgresosÚltimo cierre---18. BÚSQUEDA GLOBALEl sistema tendrá búsqueda rápida por:ProductoSKUCódigo de barrasClienteDNITeléfonoTicketProveedorEjemplo:Buscar:7791234567890Resultado:Cubierta MTB 29Stock: 4Precio: $45.000---19. POSLa pantalla de venta deberá priorizar velocidad.Funciones:Buscar productoEscanear códigoAgregar productoModificar cantidadEliminar productoSeleccionar clienteSeleccionar método de pagoRegistrar pagoFinalizar ventaImprimir ticketEnviar ticket por WhatsAppSe pueden incorporar atajos de teclado:F2 → Buscar productoF4 → ClienteF8 → CobrarESC → Cancelar---20. WHATSAPPEl sistema podrá utilizar el número de teléfono registrado del cliente.Funciones:Enviar ticketEnviar presupuestoEnviar deudaEnviar recordatorio de cuotaEjemplo:Hola Juan 
+Gracias por tu compra en Nicobici.Ticket: T-000125Total: $250.000Pagado: $100.000Saldo: $150.000Gracias por elegirnos.Inicialmente se podrá utilizar WhatsApp mediante enlaces con mensajes prellenados.No será obligatorio implementar una API oficial de WhatsApp para la primera versión.---21. SEGURIDADEl sistema deberá implementar:- Contraseñas con bcrypt.- Sesiones seguras.- Cookies HttpOnly.- SameSite apropiado.- Helmet.- Rate limiting para login.- Validación de entradas.- Sanitización cuando corresponda.- Protección CSRF.- Límites para subida de imágenes.- Variables de entorno.- No guardar contraseñas en texto plano.- No almacenar claves secretas en Git.- Backup protegido.---22. SUBIDA DE IMÁGENESLas imágenes deberán enviarse mediante:multipart/form-datay no mediante grandes cadenas Base64 dentro del JSON.Formatos permitidos:JPGPNGWebPSe establecerá un tamaño máximo configurable.Ejemplo:Máximo:5 MBLas imágenes se almacenarán en:public/uploads/La base de datos solamente almacenará la ruta:/uploads/producto-123.webp---23. BACKUPSEl sistema tendrá dos opciones:Backup manualDesde:Configuración→ Backup→ Crear copiaBackup automáticoSe podrá realizar una copia periódica de:nicobici.dbuploads/configuraciónEl backup podrá comprimirse:nicobici-backup-2026-08-31.zipTambién se deberá permitir:Crear backupDescargar backupRestaurar backupLa restauración deberá requerir confirmación.---24. API RESTAutenticaciónPOST /api/auth/loginPOST /api/auth/logoutGET  /api/auth/meProductosGET    /api/productosGET    /api/productos/:idPOST   /api/productosPUT    /api/productos/:idDELETE /api/productos/:idCategoríasGET  /api/categoriasPOST /api/categoriasPUT  /api/categorias/:idDELETE /api/categorias/:idClientesGET  /api/clientesGET  /api/clientes/:idPOST /api/clientesPUT  /api/clientes/:idProveedoresGET  /api/proveedoresGET  /api/proveedores/:idPOST /api/proveedoresPUT  /api/proveedores/:idVentasGET    /api/ventasGET    /api/ventas/:idPOST   /api/ventasPOST   /api/ventas/:id/pagarDELETE /api/ventas/:idCuotasGET  /api/cuotasGET  /api/cuotas/vencidasPOST /api/cuotas/:id/pagarComprasGET  /api/comprasGET  /api/compras/:idPOST /api/comprasInventarioGET  /api/inventario/resumenGET  /api/inventario/movimientosPOST /api/inventario/entradaPOST /api/inventario/ajusteCajaGET  /api/cajaPOST /api/caja/abrirPOST /api/caja/movimientoPOST /api/caja/cerrarGET  /api/caja/historialDevolucionesGET  /api/devolucionesPOST /api/devolucionesAnalíticaGET /api/analiticaWhatsAppGET /api/whatsapp/ticket/:idGET /api/whatsapp/presupuesto/:idGET /api/whatsapp/deuda/:clienteIdConfiguraciónGET /api/configPUT /api/configBackupGET  /api/backupPOST /api/backupPOST /api/backup/restaurarAuditoríaGET /api/auditoria---25. FACTURACIÓN Y ARCALa venta interna y el comprobante fiscal deberán considerarse conceptos separados.El sistema podrá incorporar posteriormente integración con ARCA para facturación electrónica.La estructura deberá permitir almacenar información como:tipo_comprobanteletrapunto_ventanumeroCAECAE_vencimientofechaEsto permitirá incorporar facturación electrónica sin tener que modificar completamente el módulo de ventas.La primera versión de Nicobici podrá funcionar sin facturación electrónica si el negocio todavía no requiere esa integración.---26. IDENTIFICADORESSe utilizarán identificadores internos separados de los números visibles.Ejemplo:ID interno:ven_8f72a91Ticket:T-000152Para comprobantes fiscales:Punto de venta:00001Número:00001235De esta manera no se mezclan identificadores técnicos con números comerciales.---27. REGLAS IMPORTANTES DEL SISTEMARegla 1Una venta confirmada descuenta stock.Regla 2Un presupuesto no descuenta stock.Regla 3Una venta anulada devuelve stock.Regla 4El Kardex no se modifica ni se elimina.Regla 5Una venta histórica conserva el precio y costo utilizados en el momento de la venta.Regla 6Los pagos nunca deben superar el saldo de una venta.Regla 7Una venta no puede confirmarse si el stock disponible es insuficiente, salvo que se habilite explícitamente la venta con stock negativo.Regla 8Una operación que afecte simultáneamente venta, stock, Kardex y caja debe ejecutarse dentro de una transacción.Regla 9Una venta anulada debe conservarse para auditoría.Regla 10Los backups solamente podrán ser creados/restaurados desde una cuenta autorizada.---28. FUNCIONAMIENTO OFFLINE / LOCALDebido a que es un comercio pequeño, Nicobici podrá funcionar localmente.Ejemplo:PC del negocio     
+Node.js     
+SQLite     
+NavegadorTambién podrá ejecutarse en Android mediante Termux:Android   
+Termux   
+Node.js   
+Nicobici   
+SQLiteEsto permite mantener costos de infraestructura muy bajos.---29. MIGRACIÓN DESDE JSONSi ya existe información en:users.jsonclientes.jsonproductos.jsonventas.jsonpagos.jsonse podrá crear un script:npm run migrateque transforme los datos existentes a SQLite.Ejemplo:JSON 
+Migrador 
+SQLiteLos archivos JSON originales deberán conservarse como backup hasta verificar que la migración sea correcta.---30. TECNOLOGÍAS RECOMENDADASNode.jsExpressSQLitebcryptjsexpress-sessionHelmetexpress-rate-limitmulterChart.jsHTMLCSSJavaScriptNo se requiere:ReactAngularVueMySQLPostgreSQLRedisDockerKubernetespara esta primera versión.---31. ESCALABILIDAD FUTURALa primera versión estará diseñada para un único negocio y un único dueño.No será necesario implementar inicialmente:- Multiempresa.- Sucursales.- Usuarios empleados.- Roles complejos.- Sincronización entre sucursales.Sin embargo, la estructura permitirá agregarlos posteriormente si el negocio crece.---32. PRIORIDAD DE DESARROLLOFASE 1 — BASESQLiteAutenticaciónProductosCategoríasClientesProveedoresFASE 2 — INVENTARIOStockKardexAjustesComprasCódigo de barrasF

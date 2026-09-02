@@ -1,0 +1,9 @@
+node_modules/
+data/
+.env
+*.log
+# Credenciales Google OAuth (NUNCA subir)
+client_secret_*.json
+credentials.json
+public/uploads/*
+!public/uploads/.gitkeep

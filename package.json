@@ -1,0 +1,34 @@
+{
+  "name": "nicobici",
+  "version": "2.0.0",
+  "description": "Sistema Nicobici Enterprise POS, ERP, Kardex y Cuentas Corrientes (SQLite Engine)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "init-db": "node src/models/init.js",
+    "migrate": "node src/models/migrations.js",
+    "seed": "node src/models/init.js"
+  },
+  "keywords": [
+    "nicobici",
+    "bicicletas",
+    "pos",
+    "kardex",
+    "sqlite",
+    "erp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.7.0",
+    "express-session": "^1.17.3",
+    "googleapis": "^178.0.0",
+    "helmet": "^8.3.0",
+    "multer": "^2.3.0"
+  }
+}

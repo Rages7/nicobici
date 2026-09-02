@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Clasificación & Categorías</title>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Principal</div>
+    <a class="side-link" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas</a>
+    <a class="side-link" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/><path d="M16 3.1a4 4 0 010 7.8"/></svg> Clientes</a>
+        <div class="side-section">Gestión</div>
+    <a class="side-link" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link active" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Mostrador / Inicio</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div class="muted" style="font-size:11px;color:var(--sidebar-muted)">Catálogo y grupos</div>
+    </div>
+    <button id="btn-logout" class="btn btn-ghost btn-sm" style="display:none;background:var(--sidebar-active);color:#fff;border-color:transparent">Salir</button>
+  </div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+  <div>
+    <div class="breadcrumb"><a href="/">Inicio</a> <span>/</span> <span>Administración</span> <span>/</span> <span style="color:var(--text);font-weight:600">Categorías</span></div>
+    <h1>Familias de Productos & Categorías</h1>
+  </div>
+  <div class="topbar-actions">
+    <span class="nav-user badge badge-blue" style="display:none;font-size:12px;font-weight:700"></span>
+    <button id="btn-new" class="btn btn-primary">+ Nueva Categoría</button>
+    <button class="btn btn-ghost btn-sm btn-logout" style="display:none;color:var(--danger)" title="Cerrar sesión">🚪 Salir</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="card" style="overflow:hidden">
+    <div class="card-header">
+      <div>
+        <h3>Estructura de Catálogo</h3>
+        <div class="modal-subtitle" id="count">Cargando...</div>
+      </div>
+    </div>
+    <div class="table-wrap" style="border:0">
+      <table class="table" id="tbl">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Categoría</th>
+            <th>Slug / URL</th>
+            <th>Descripción</th>
+            <th class="num">Artículos Vinculados</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"><tr><td colspan="6" class="muted" style="text-align:center;padding:24px"><span class="spinner"></span> Cargando categorías...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- Modal Categoría -->
+<div id="modal" class="modal-back hidden">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="modal-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg></div>
+        <div>
+          <h3 id="mtitle">Nueva Categoría</h3>
+          <div class="modal-subtitle">Clasificación para reportes y filtro de ventas</div>
+        </div>
+      </div>
+      <button id="btn-x" class="modal-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="msg"></div>
+      <form id="form" class="form-row">
+        <label>Nombre de la Categoría <span class="req">*</span>
+          <input name="nombre" required placeholder="Ej: Bicicletas, Repuestos, Accesorios" maxlength="40"/>
+        </label>
+        <div class="grid grid-2">
+          <label>Código corto (prefijo SKU)
+            <input name="codigo" placeholder="Ej: BIC, REP, ACC" maxlength="12" style="text-transform:uppercase;font-weight:700"/>
+          </label>
+          <label>Identificador URL (Slug)
+            <input name="slug" placeholder="bicicletas" disabled style="background:var(--surface-2)"/>
+          </label>
+        </div>
+        <label>Descripción detallada
+          <input name="descripcion" placeholder="Ej: Cuadros, suspensiones, transmisión..." maxlength="120"/>
+        </label>
+        <div style="display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-top:4px">
+          <span id="previewColorDot" style="width:16px;height:16px;border-radius:50%;background:#2563eb;display:inline-block;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.15)"></span>
+          <div>
+            <div style="font-weight:700;color:var(--text)">🎨 Color identificador automático</div>
+            <div class="muted" style="font-size:11px">Se asigna automáticamente para reportes, métricas y etiquetas</div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button type="button" id="btn-cancel" class="btn btn-ghost">Cancelar</button>
+      <button type="submit" form="form" class="btn btn-primary" style="min-width:140px">💾 Guardar Categoría</button>
+    </div>
+  </div>
+</div>
+
+<nav class="mobile-nav">
+  <a href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg><span>Dashboard</span></a>
+  <a href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg><span>Productos</span></a>
+  <a href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8"/></svg><span>Ventas</span></a>
+  <a href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg><span>Clientes</span></a>
+  <a href="#" class="btn-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="color:var(--danger)">Salir</span></a>
+</nav>
+
+<script src="/js/app.js"></script>
+<script>
+let editing = null;
+
+const PALETTE = [
+  '#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899',
+  '#06b6d4', '#f97316', '#14b8a6', '#6366f1', '#84cc16',
+  '#e11d48', '#0284c7', '#059669', '#d97706', '#7c3aed'
+];
+
+function getAutoColor(name) {
+  if (!name) return PALETTE[0];
+  let hash = 0;
+  const s = name.trim().toLowerCase();
+  for (let i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+  return PALETTE[hash % PALETTE.length];
+}
+
+function slugify(s) {
+  return (s || '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+}
+
+async function load() {
+  const cats = await fetch('/api/categorias').then(x => x.json()).then(j => j.data || []).catch(() => []);
+  const prods = await fetch('/api/productos?limit=300').then(x => x.json()).then(j => j.data || []).catch(() => []);
+  const counts = Object.fromEntries(cats.map(c => [c.id, prods.filter(p => p.categoriaId === c.id).length]));
+
+  document.getElementById('count').textContent = `${cats.length} categorías activas · ${prods.length} productos registrados`;
+  const tb = document.getElementById('tbody');
+
+  if (!cats.length) {
+    tb.innerHTML = '<tr><td colspan="6" class="muted" style="text-align:center;padding:24px">No hay categorías registradas.</td></tr>';
+  } else {
+    tb.innerHTML = cats.map(c => {
+      const pCount = counts[c.id] || 0;
+      const catColor = c.color || getAutoColor(c.nombre);
+
+      return `
+        <tr>
+          <td>
+            <code style="background:var(--surface-2);padding:4px 8px;border-radius:6px;font-weight:800;font-size:12px;letter-spacing:.04em;color:var(--primary)">
+              ${esc(c.codigo || c.slug || '—')}
+            </code>
+          </td>
+          <td>
+            <div style="display:flex;gap:10px;align-items:center">
+              <span style="width:12px;height:12px;border-radius:50%;background:${catColor};box-shadow:0 2px 5px rgba(0,0,0,0.15);flex-shrink:0"></span>
+              <span style="font-weight:700;font-size:14px">${esc(c.nombre)}</span>
+            </div>
+          </td>
+          <td class="muted mono" style="font-size:12px">${esc(c.slug)}</td>
+          <td class="muted" style="font-size:13px">${esc(c.descripcion || '—')}</td>
+          <td class="num"><span class="badge ${pCount ? 'badge-blue' : 'badge-gray'}">${pCount} productos</span></td>
+          <td style="white-space:nowrap">
+            <div class="actions-cell">
+              <button class="btn-action btn-edit" onclick="editCat('${c.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Editar</span>
+              </button>
+              <button class="btn-action btn-delete btn-sm-icon" onclick="delCat('${c.id}')" title="Eliminar Categoría">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+}
+
+async function editCat(id) {
+  const cats = await fetch('/api/categorias').then(x => x.json()).then(j => j.data || []).catch(() => []);
+  const c = cats.find(x => x.id === id);
+  if (!c) return;
+  editing = c;
+  document.getElementById('mtitle').textContent = 'Editar Categoría ' + c.nombre;
+  const f = document.getElementById('form');
+  f.nombre.value = c.nombre;
+  f.codigo.value = c.codigo || '';
+  f.descripcion.value = c.descripcion || '';
+  f.slug.value = c.slug;
+  document.getElementById('previewColorDot').style.background = c.color || getAutoColor(c.nombre);
+  open();
+}
+
+async function delCat(id) {
+  if (!confirm('¿Eliminar esta categoría? Solo es posible si no tiene productos asignados.')) return;
+  const r = await fetch('/api/categorias/' + id, { method: 'DELETE' }).then(x => x.json());
+  if (!r.ok) {
+    showToast(r.error || 'No se puede eliminar la categoría', 'error');
+  } else {
+    showToast('Categoría eliminada', 'info');
+    load();
+  }
+}
+
+function open() { 
+  document.getElementById('modal').classList.remove('hidden'); 
+  const dot = document.getElementById('previewColorDot');
+  if (!editing) dot.style.background = PALETTE[0];
+}
+function close() {
+  document.getElementById('modal').classList.add('hidden');
+  editing = null;
+  document.getElementById('form').reset();
+  document.getElementById('msg').innerHTML = '';
+  document.querySelector('[name="slug"]').value = '';
+  document.getElementById('previewColorDot').style.background = PALETTE[0];
+}
+
+document.getElementById('btn-new')?.addEventListener('click', () => {
+  editing = null;
+  document.getElementById('mtitle').textContent = 'Nueva Categoría';
+  open();
+});
+document.getElementById('btn-cancel')?.addEventListener('click', close);
+document.getElementById('btn-x')?.addEventListener('click', close);
+document.getElementById('modal')?.addEventListener('click', (e) => { if (e.target.id === 'modal') close(); });
+
+const nombreInput = document.querySelector('[name="nombre"]');
+nombreInput?.addEventListener('input', () => {
+  if (!editing) {
+    document.querySelector('[name="slug"]').value = slugify(nombreInput.value);
+    document.getElementById('previewColorDot').style.background = getAutoColor(nombreInput.value);
+  }
+});
+
+document.getElementById('form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const nombre = fd.get('nombre');
+  const body = {
+    nombre: nombre,
+    codigo: (fd.get('codigo') || '').toUpperCase(),
+    descripcion: fd.get('descripcion'),
+    color: editing ? (editing.color || getAutoColor(nombre)) : getAutoColor(nombre)
+  };
+  const url = editing ? '/api/categorias/' + editing.id : '/api/categorias';
+  const method = editing ? 'PUT' : 'POST';
+
+  const r = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(x => x.json());
+
+  if (!r.ok) {
+    document.getElementById('msg').innerHTML = `<div class="alert alert-err">${esc(r.error)}</div>`;
+    return;
+  }
+
+  showToast(editing ? 'Categoría actualizada' : '¡Categoría creada con éxito!', 'success');
+  close();
+  load();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'F2') { e.preventDefault(); document.getElementById('btn-new')?.click(); }
+  if (e.key === 'Escape' && !document.getElementById('modal').classList.contains('hidden')) close();
+});
+
+refreshNav().then(load);
+</script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Compras a Proveedores</title>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Principal</div>
+    <a class="side-link" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas</a>
+    <a class="side-link" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/><path d="M16 3.1a4 4 0 010 7.8"/></svg> Clientes</a>
+        <div class="side-section">Gestión</div>
+    <a class="side-link" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Mostrador / Inicio</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div id="cfgLabel" class="muted" style="color:var(--sidebar-muted);font-size:11px"></div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-logout" style="display:none;background:var(--sidebar-active);color:#fff;border-color:transparent">Salir</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb"><a href="/">Inicio</a> <span>/</span> <span style="color:var(--text);font-weight:600">Compras</span></div>
+      <h1>Facturas & Remitos de Compra a Proveedores</h1>
+    </div>
+    <div class="topbar-actions">
+      <button id="btnNuevaCompra" class="btn btn-primary">+ Cargar Nueva Compra</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="card" style="padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="margin:0;font-size:16px">Historial de Compras Registradas</h3>
+        <button id="btnRefreshCompras" class="btn btn-ghost btn-sm">↻ Actualizar</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>N° Comprobante</th>
+              <th>Proveedor</th>
+              <th>Artículos</th>
+              <th>Total</th>
+              <th>Abonado</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tablaCompras"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nueva Compra -->
+<div id="modalCompra" class="modal-backdrop" style="display:none">
+  <div class="modal" style="max-width:900px">
+    <h3>Cargar Factura de Compra</h3>
+    <form id="formCompra">
+      <div class="grid grid-2" style="gap:12px">
+        <div>
+          <label>Proveedor</label>
+          <select id="compraProveedor" required></select>
+        </div>
+        <div>
+          <label>N° Factura / Remito</label>
+          <input type="text" id="compraNumero" placeholder="Ej. FC-0001-0004523" required/>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;border:1px solid var(--border);border-radius:var(--radius);padding:12px;background:#f8fafc">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px">Agregar Productos al Remito</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="compraProdSelect" style="flex:2;min-width:180px"></select>
+          <input type="number" id="compraProdQty" placeholder="Cant" min="1" value="1" style="width:80px"/>
+          <input type="number" id="compraProdCosto" placeholder="Costo Unit" min="0" step="10" style="width:120px"/>
+          <button type="button" id="btnAddItem" class="btn btn-soft btn-sm">+ Agregar</button>
+        </div>
+
+        <table style="margin-top:10px;font-size:13px">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th style="width:60px">Cant</th>
+              <th style="width:100px">Costo</th>
+              <th style="width:100px">Subtotal</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="compraItemsBody">
+            <tr><td colspan="5" class="muted" style="text-align:center">Sin productos agregados.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+        <div style="font-size:16px"><strong>Total Compra:</strong> <span id="lblTotalCompra" style="color:var(--primary);font-weight:900">$0</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="margin:0;font-size:13px">Pagado ($):</label>
+          <input type="number" id="compraPagado" min="0" value="0" style="width:120px;font-weight:700"/>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('modalCompra').style.display='none'">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Confirmar e Ingresar Stock</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+let productos = [];
+let proveedores = [];
+let itemsAgregados = [];
+
+async function init() {
+  const [resP, resProv] = await Promise.all([
+    fetch('/api/productos'),
+    fetch('/api/proveedores')
+  ]);
+  productos = (await resP.json()).data || [];
+  proveedores = (await resProv.json()).data || [];
+
+  const provSelect = document.getElementById('compraProveedor');
+  provSelect.innerHTML = '<option value="">Seleccione proveedor...</option>' +
+    proveedores.map(p => `<option value="${p.id}">${p.nombre} (${p.cuit || 'S/CUIT'})</option>`).join('');
+
+  const prodSelect = document.getElementById('compraProdSelect');
+  prodSelect.innerHTML = '<option value="">Seleccione producto...</option>' +
+    productos.map(p => `<option value="${p.id}">${p.nombre} (Stock actual: ${p.stock})</option>`).join('');
+
+  prodSelect.onchange = () => {
+    const prod = productos.find(x => x.id === prodSelect.value);
+    if (prod) {
+      document.getElementById('compraProdCosto').value = prod.costo || 0;
+    }
+  };
+
+  cargarCompras();
+}
+
+async function cargarCompras() {
+  const res = await fetch('/api/compras');
+  const data = await res.json();
+  const tbody = document.getElementById('tablaCompras');
+  tbody.innerHTML = (data.data || []).map(c => {
+    const prov = proveedores.find(p => p.id === c.proveedorId);
+    return `
+      <tr>
+        <td>${c.fecha}</td>
+        <td><strong>${c.numero}</strong></td>
+        <td>${prov ? prov.nombre : '—'}</td>
+        <td>${c.items ? c.items.length : 0} artículos</td>
+        <td style="font-weight:700">$${c.total.toLocaleString('es-AR')}</td>
+        <td>$${c.pagado.toLocaleString('es-AR')}</td>
+        <td><span class="badge ${c.estado === 'pagada' ? 'badge-green' : 'badge-amber'}">${c.estado.toUpperCase()}</span></td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="7" style="text-align:center" class="muted">No hay compras registradas aún.</td></tr>';
+}
+
+document.getElementById('btnAddItem').onclick = () => {
+  const pId = document.getElementById('compraProdSelect').value;
+  const qty = Number(document.getElementById('compraProdQty').value) || 1;
+  const costo = Number(document.getElementById('compraProdCosto').value) || 0;
+  const prod = productos.find(x => x.id === pId);
+
+  if (!prod) return alert('Seleccione un producto válido');
+
+  itemsAgregados.push({
+    productoId: prod.id,
+    nombre: prod.nombre,
+    cantidad: qty,
+    costoUnit: costo,
+    subtotal: qty * costo
+  });
+
+  renderItems();
+};
+
+function renderItems() {
+  const tbody = document.getElementById('compraItemsBody');
+  let total = 0;
+  if (!itemsAgregados.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center">Sin productos agregados.</td></tr>';
+    document.getElementById('lblTotalCompra').innerText = '$0';
+    return;
+  }
+
+  tbody.innerHTML = itemsAgregados.map((it, idx) => {
+    total += it.subtotal;
+    return `
+      <tr>
+        <td>${it.nombre}</td>
+        <td>${it.cantidad}</td>
+        <td>$${it.costoUnit.toLocaleString('es-AR')}</td>
+        <td>$${it.subtotal.toLocaleString('es-AR')}</td>
+        <td><button type="button" class="btn btn-ghost btn-sm" onclick="itemsAgregados.splice(${idx},1);renderItems();" style="color:var(--danger)">✕</button></td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('lblTotalCompra').innerText = '$' + total.toLocaleString('es-AR');
+  document.getElementById('compraPagado').value = total;
+}
+
+document.getElementById('btnNuevaCompra').onclick = () => {
+  itemsAgregados = [];
+  renderItems();
+  document.getElementById('formCompra').reset();
+  document.getElementById('modalCompra').style.display = 'flex';
+};
+
+document.getElementById('formCompra').onsubmit = async (e) => {
+  e.preventDefault();
+  if (!itemsAgregados.length) return alert('Debe agregar al menos 1 producto');
+
+  const proveedorId = document.getElementById('compraProveedor').value;
+  const numero = document.getElementById('compraNumero').value;
+  const pagado = Number(document.getElementById('compraPagado').value) || 0;
+
+  const res = await fetch('/api/compras', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      proveedorId,
+      numero,
+      pagado,
+      items: itemsAgregados
+    })
+  });
+
+  const data = await res.json();
+  if (!data.ok) return alert(data.error || 'Error al guardar compra');
+  document.getElementById('modalCompra').style.display = 'none';
+  alert('Compra registrada correctamente. El stock y costos fueron actualizados.');
+  init();
+};
+
+init();
+</script>
+</body>
+</html>

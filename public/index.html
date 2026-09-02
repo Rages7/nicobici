@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Panel Principal</title>
+<link rel="stylesheet" href="/css/style.css"/>
+<style>
+.launcher-hero {
+  background: linear-gradient(135deg, var(--primary) 0%, #1e3a8a 100%);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 32px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.35);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.launcher-hero::after {
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.launcher-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.launcher-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+.launcher-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+}
+.launcher-icon.blue { background: #dbeafe; color: var(--primary); }
+.launcher-icon.green { background: #dcfce7; color: var(--success); }
+.launcher-icon.purple { background: #f3e8ff; color: #9333ea; }
+.launcher-icon.amber { background: #fef3c7; color: #d97706; }
+.launcher-icon.red { background: #fee2e2; color: var(--danger); }
+.launcher-icon.slate { background: var(--surface-2); color: var(--text-2); }
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Principal</div>
+    <a class="side-link" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas (POS)</a>
+    <a class="side-link" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg> Clientes & Deudas</a>
+        <div class="side-section">Gestión</div>
+    <a class="side-link" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Mostrador / Inicio</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div id="cfgLabel" class="muted" style="font-size:11px;color:var(--sidebar-muted)">Sistema Listo ✓</div>
+    </div>
+    <button id="btn-logout" class="btn btn-ghost btn-sm" style="display:none;background:var(--sidebar-active);color:#fff;border-color:transparent">Salir</button>
+  </div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+  <div>
+    <h1 style="font-size:20px" id="lblEmpresa">Nicobici — Mostrador Principal</h1>
+    <div class="muted" style="font-size:12px" id="lblFecha">Bienvenido al sistema</div>
+  </div>
+  <div class="topbar-actions">
+    <span class="nav-user badge badge-blue" style="display:none;font-size:12px;font-weight:700"></span>
+    <button id="btn-quick-config" class="btn btn-ghost btn-sm">⚙️ Ajustes</button>
+    <a href="/ventas.html" class="btn btn-primary">🛒 Ir a Ventas</a>
+    <button class="btn btn-ghost btn-sm btn-logout" style="display:none;color:var(--danger)" title="Cerrar sesión">🚪 Salir</button>
+  </div>
+</div>
+
+<div class="content" style="max-width:1080px;margin:0 auto">
+  
+  <!-- Hero / Lanzador Principal -->
+  <div class="launcher-hero">
+    <div>
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;opacity:0.85;margin-bottom:6px">Terminal de Mostrador</div>
+      <h2 style="font-size:26px;font-weight:900;letter-spacing:-0.03em;line-height:1.2">¿Qué querés hacer ahora?</h2>
+      <p style="margin-top:6px;font-size:14px;opacity:0.9">Acceso directo a ventas, catálogo de productos, cuentas corrientes y stock.</p>
+    </div>
+    <a href="/ventas.html" class="btn btn-lg" style="background:#fff;color:var(--primary);font-weight:800;padding:16px 28px;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,0.15);white-space:nowrap">
+      🛒 + NUEVA VENTA
+    </a>
+  </div>
+
+  <!-- Grid de Módulos Operativos (Limpio y directo) -->
+  <div class="grid grid-3" style="gap:16px">
+    
+    <!-- Ventas -->
+    <a href="/ventas.html" class="launcher-card">
+      <div>
+        <div class="launcher-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        </div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px">Punto de Venta (POS)</div>
+        <div class="muted" style="font-size:13px;line-height:1.4">Cobros al contado, cuotas, cálculo de vuelto e impresión de tickets.</div>
+      </div>
+      <div style="margin-top:16px;display:flex;align-items:center;color:var(--primary);font-weight:700;font-size:13px">
+        Abrir caja y facturar →
+      </div>
+    </a>
+
+    <!-- Productos -->
+    <a href="/productos.html" class="launcher-card">
+      <div>
+        <div class="launcher-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg>
+        </div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px">Catálogo de Productos</div>
+        <div class="muted" style="font-size:13px;line-height:1.4">Precios, costos, fotos, marcas y cálculo de margen de ganancia.</div>
+      </div>
+      <div style="margin-top:16px;display:flex;align-items:center;color:var(--success);font-weight:700;font-size:13px">
+        Ver o agregar artículos →
+      </div>
+    </a>
+
+    <!-- Clientes & Cuentas -->
+    <a href="/usuarios.html" class="launcher-card">
+      <div>
+        <div class="launcher-icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg>
+        </div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px">Clientes & Cobranzas</div>
+        <div class="muted" style="font-size:13px;line-height:1.4">Directorio de clientes, cuentas corrientes y aviso de deuda por WhatsApp.</div>
+      </div>
+      <div style="margin-top:16px;display:flex;align-items:center;color:var(--danger);font-weight:700;font-size:13px">
+        Cobrar o ver saldos →
+      </div>
+    </a>
+
+    <!-- Inventario & Kardex -->
+    <a href="/inventario.html" class="launcher-card">
+      <div>
+        <div class="launcher-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg>
+        </div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px">Control de Stock & Kardex</div>
+        <div class="muted" style="font-size:13px;line-height:1.4">Entradas de mercadería, ajustes manuales y valorización total a costo.</div>
+      </div>
+      <div style="margin-top:16px;display:flex;align-items:center;color:#d97706;font-weight:700;font-size:13px">
+        Ingresar stock o ajustar →
+      </div>
+    </a>
+
+    <!-- Estadísticas & Dashboard -->
+    <a href="/dashboard.html" class="launcher-card">
+      <div>
+        <div class="launcher-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg>
+        </div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px">Estadísticas & Métricas</div>
+        <div class="muted" style="font-size:13px;line-height:1.4">Facturación diaria, rentabilidad, evolución semanal y categorías más vendidas.</div>
+      </div>
+      <div style="margin-top:16px;display:flex;align-items:center;color:#9333ea;font-weight:700;font-size:13px">
+        Ver reportes en vivo →
+      </div>
+    </a>
+
+    <!-- Categorías -->
+    <a href="/categorias.html" class="launcher-card">
+      <div>
+        <div class="launcher-icon indigo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg>
+        </div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px">Categorías & Familias</div>
+        <div class="muted" style="font-size:13px;line-height:1.4">Organización de artículos: Bicicletas, Muebles, Repuestos, Celulares y más.</div>
+      </div>
+      <div style="margin-top:16px;display:flex;align-items:center;color:#4f46e5;font-weight:700;font-size:13px">
+        Crear o ver categorías →
+      </div>
+    </a>
+
+    <!-- Proveedores -->
+    <a href="/proveedores.html" class="launcher-card">
+      <div>
+        <div class="launcher-icon slate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg>
+        </div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px">Proveedores Mayoristas</div>
+        <div class="muted" style="font-size:13px;line-height:1.4">Directorio de distribuidores, importadoras, CUIT y contacto comercial.</div>
+      </div>
+      <div style="margin-top:16px;display:flex;align-items:center;color:var(--text);font-weight:700;font-size:13px">
+        Gestionar proveedores →
+      </div>
+    </a>
+
+    <!-- Google Drive -->
+    <div class="launcher-card" id="driveCard" style="cursor:default">
+      <div>
+        <div class="launcher-icon" style="background:#e8f5e9;color:#1a73e8">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+        </div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px">Google Drive</div>
+        <div class="muted" style="font-size:13px;line-height:1.4" id="driveCardDesc">Respaldo automático de tu base de datos en la nube.</div>
+      </div>
+      <div id="driveCardAction" style="margin-top:16px;display:flex;align-items:center;font-weight:700;font-size:13px">
+        <span class="spinner" style="width:14px;height:14px"></span> Verificando...
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel Google Drive (debajo del grid) -->
+  <div id="drivePanel" class="card" style="margin-top:20px;display:none">
+    <div class="card-header">
+      <h3>☁️ Google Drive — Respaldo en la Nube</h3>
+      <span id="driveBadge" class="badge badge-gray">Desconectado</span>
+    </div>
+    <div class="card-body" style="padding:18px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:8px">Estado de Conexión</div>
+          <div id="driveStatusText" style="font-size:13px;margin-bottom:12px">No conectado</div>
+          <button id="btnDriveConnectMain" class="btn btn-primary" style="width:100%;margin-bottom:8px">
+            🔗 Conectar con Google
+          </button>
+          <button id="btnDriveDisconnectMain" class="btn btn-ghost" style="width:100%;display:none;color:var(--danger)">
+            Desconectar
+          </button>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:8px">Acciones Rápidas</div>
+          <button id="btnDriveUploadMain" class="btn btn-soft" style="width:100%;margin-bottom:8px" disabled>
+            📤 Subir Backup a Drive
+          </button>
+          <button id="btnDriveListMain" class="btn btn-soft" style="width:100%;margin-bottom:8px" disabled>
+            📂 Ver Respaldos en Drive
+          </button>
+          <label style="font-size:12px;display:flex;align-items:center;gap:6px;margin-top:8px">
+            <input type="checkbox" id="cfgDriveAutoUploadMain" checked> Subir automáticamente
+          </label>
+        </div>
+      </div>
+      <div id="driveFilesListMain" style="display:none;margin-top:16px;border-top:1px solid var(--border);padding-top:12px"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- Modal Configuración -->
+<div id="modalConfig" class="modal-back hidden">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="modal-icon blue">⚙️</div>
+        <div>
+          <h3>Ajustes del Comercio</h3>
+          <div class="modal-subtitle">Nombre de la empresa, moneda e IVA predeterminado</div>
+        </div>
+      </div>
+      <button id="btn-x-config" class="modal-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="msgConfig"></div>
+      <form id="formConfig" class="form-row">
+        <label>Nombre de la Empresa / Local
+          <input name="empresa" id="cfgEmpresa" required placeholder="Ej: Nicobici"/>
+        </label>
+        <div class="grid grid-2">
+          <label>Moneda
+            <input name="moneda" id="cfgMoneda" value="ARS" required/>
+          </label>
+          <label>IVA / Impuestos (%)
+            <input name="ivaDefault" id="cfgIvaDefault" type="number" step="any" value="0" required/>
+          </label>
+        </div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px">Seguridad y Respaldo</div>
+          <a href="/api/config/backup" download class="btn btn-soft" style="width:100%;justify-content:center;font-weight:600;font-size:12px;text-decoration:none">
+            💾 Descargar Copia de Seguridad Completa (.json)
+          </a>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button type="button" id="btn-cancel-config" class="btn btn-ghost">Cancelar</button>
+      <button type="submit" form="formConfig" class="btn btn-primary">Guardar Cambios</button>
+    </div>
+  </div>
+</div>
+
+<nav class="mobile-nav">
+  <a href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg><span>Dashboard</span></a>
+  <a href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg><span>Productos</span></a>
+  <a href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8"/></svg><span>Ventas</span></a>
+  <a href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg><span>Clientes</span></a>
+  <a href="#" class="btn-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="color:var(--danger)">Salir</span></a>
+</nav>
+
+<script src="/js/app.js"></script>
+<script>
+(async () => {
+  await refreshNav();
+  
+  // Fecha en formato humano
+  const ahora = new Date();
+  const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('lblFecha').textContent = ahora.toLocaleDateString('es-AR', opciones);
+
+  // Configuración
+  const cfg = await fetch('/api/config').then(x => x.json()).then(j => j.data).catch(() => ({ ivaDefault: 21, empresa: 'Nicobici' }));
+  if (cfg.empresa) {
+    document.getElementById('lblEmpresa').textContent = `${cfg.empresa} — Mostrador Principal`;
+  }
+
+  // Handle Google Drive callback
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('drive') === 'connected') {
+    showToast('Google Drive conectado ✓', 'success');
+    window.history.replaceState({}, '', '/index.html');
+  } else if (urlParams.get('drive') === 'error') {
+    showToast('Error al conectar Drive: ' + (urlParams.get('msg') || 'Desconocido'), 'error');
+    window.history.replaceState({}, '', '/index.html');
+  }
+
+  // Modal Ajustes
+  const modalConfig = document.getElementById('modalConfig');
+  const btnOpenConfig = document.getElementById('btn-open-config');
+  const btnQuickConfig = document.getElementById('btn-quick-config');
+  const btnCancelConfig = document.getElementById('btn-cancel-config');
+  const btnXConfig = document.getElementById('btn-x-config');
+
+  function openConfig() {
+    document.getElementById('cfgEmpresa').value = cfg.empresa || 'Nicobici';
+    document.getElementById('cfgIvaDefault').value = cfg.ivaDefault || 21;
+    document.getElementById('cfgMoneda').value = cfg.moneda || 'ARS';
+    modalConfig.classList.remove('hidden');
+  }
+  function closeConfig() { modalConfig.classList.add('hidden'); }
+
+  btnOpenConfig?.addEventListener('click', (e) => { e.preventDefault(); openConfig(); });
+  btnQuickConfig?.addEventListener('click', openConfig);
+  btnCancelConfig?.addEventListener('click', closeConfig);
+  btnXConfig?.addEventListener('click', closeConfig);
+  modalConfig?.addEventListener('click', (e) => { if (e.target === modalConfig) closeConfig(); });
+
+  // Google Drive - Main Page
+
+  // Google Drive - Main Page Elements
+  const driveCard = document.getElementById('driveCard');
+  const drivePanel = document.getElementById('drivePanel');
+  const driveCardDesc = document.getElementById('driveCardDesc');
+  const driveCardAction = document.getElementById('driveCardAction');
+  const driveBadge = document.getElementById('driveBadge');
+  const driveStatusText = document.getElementById('driveStatusText');
+  const btnDriveConnectMain = document.getElementById('btnDriveConnectMain');
+  const btnDriveDisconnectMain = document.getElementById('btnDriveDisconnectMain');
+  const btnDriveUploadMain = document.getElementById('btnDriveUploadMain');
+  const btnDriveListMain = document.getElementById('btnDriveListMain');
+  const driveFilesListMain = document.getElementById('driveFilesListMain');
+  const cfgDriveAutoUploadMain = document.getElementById('cfgDriveAutoUploadMain');
+
+  async function loadDriveMain() {
+    try {
+      const r = await fetch('/api/google-drive/status').then(x => x.json());
+      if (r.connected) {
+        driveCardDesc.textContent = 'Conectado. Los backups se suben automáticamente.';
+        driveCardAction.innerHTML = '<span style="color:#22c55e">●</span>&nbsp; Conectado a Drive';
+        driveCardAction.style.color = '#22c55e';
+        driveCard.style.borderColor = '#22c55e';
+        driveBadge.textContent = 'Conectado';
+        driveBadge.className = 'badge badge-green';
+        driveStatusText.innerHTML = '<span style="color:#22c55e">●</span> Conectado a Google Drive' +
+          (r.folderName ? `<br><small style="opacity:0.7">Carpeta: ${esc(r.folderName)}</small>` : '');
+        if (r.storageInfo) {
+          const used = (Number(r.storageInfo.usage) / 1073741824).toFixed(2);
+          const total = (Number(r.storageInfo.limit) / 1073741824).toFixed(2);
+          driveStatusText.innerHTML += `<br><small style="opacity:0.7">Almacenamiento: ${used} / ${total} GB</small>`;
+        }
+        btnDriveConnectMain.style.display = 'none';
+        btnDriveDisconnectMain.style.display = 'block';
+        btnDriveUploadMain.disabled = false;
+        btnDriveListMain.disabled = false;
+        cfgDriveAutoUploadMain.checked = r.autoUpload;
+        drivePanel.style.display = 'block';
+        driveCard.onclick = () => drivePanel.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        driveCardDesc.textContent = 'Respalda tu base de datos en Google Drive.';
+        driveCardAction.innerHTML = '<span style="color:var(--primary)">🔗 Conectar →</span>';
+        driveCardAction.style.color = 'var(--primary)';
+        driveCard.style.borderColor = '';
+        driveBadge.textContent = 'Desconectado';
+        driveBadge.className = 'badge badge-gray';
+        driveStatusText.innerHTML = '<span style="color:#ef4444">●</span> No conectado';
+        btnDriveConnectMain.style.display = 'block';
+        btnDriveDisconnectMain.style.display = 'none';
+        btnDriveUploadMain.disabled = true;
+        btnDriveListMain.disabled = true;
+        drivePanel.style.display = 'none';
+        driveCard.onclick = () => {
+          drivePanel.style.display = 'block';
+          drivePanel.scrollIntoView({ behavior: 'smooth' });
+        };
+      }
+    } catch (_) {
+      driveCardDesc.textContent = 'Error al verificar estado';
+      driveCardAction.innerHTML = '<span style="color:#ef4444">Error</span>';
+    }
+  }
+
+  btnDriveConnectMain?.addEventListener('click', async () => {
+    try {
+      const r = await fetch('/api/google-drive/auth', { method: 'POST' }).then(x => x.json());
+      if (r.url) {
+        showToast('Se abrió Google Chrome para autorizar', 'success');
+        window.open(r.url, 'driveAuth', 'width=500,height=600');
+        setTimeout(loadDriveMain, 4000);
+      }
+    } catch (_) {
+      showToast('Error al iniciar conexión', 'error');
+    }
+  });
+
+  btnDriveDisconnectMain?.addEventListener('click', async () => {
+    if (!confirm('¿Desconectar Google Drive?')) return;
+    await fetch('/api/google-drive/disconnect', { method: 'POST' });
+    loadDriveMain();
+  });
+
+  btnDriveUploadMain?.addEventListener('click', async () => {
+    btnDriveUploadMain.disabled = true;
+    btnDriveUploadMain.textContent = '⏳ Subiendo...';
+    try {
+      const r = await fetch('/api/google-drive/upload', { method: 'POST' }).then(x => x.json());
+      if (r.ok) {
+        showToast('Backups subidos a Drive ✓', 'success');
+      } else {
+        showToast('Error: ' + (r.error || 'Desconocido'), 'error');
+      }
+    } catch (_) {
+      showToast('Error al subir a Drive', 'error');
+    }
+    btnDriveUploadMain.disabled = false;
+    btnDriveUploadMain.textContent = '📤 Subir Backup a Drive';
+  });
+
+  btnDriveListMain?.addEventListener('click', async () => {
+    if (driveFilesListMain.style.display === 'block') {
+      driveFilesListMain.style.display = 'none';
+      return;
+    }
+    try {
+      const r = await fetch('/api/google-drive/list').then(x => x.json());
+      if (r.ok && r.archivos.length > 0) {
+        driveFilesListMain.innerHTML = '<div style="font-size:12px;font-weight:700;margin-bottom:8px">Respaldos en Drive</div>' +
+          r.archivos.map(f => {
+          const size = f.size ? (Number(f.size) / 1024).toFixed(1) + ' KB' : '';
+          const fecha = f.createdTime ? new Date(f.createdTime).toLocaleDateString('es-AR') : '';
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid var(--border);font-size:12px">
+            <div><div style="font-weight:600">${esc(f.name)}</div><div style="opacity:0.6">${size} · ${fecha}</div></div>
+            <div style="display:flex;gap:4px">
+              <button onclick="restoreDriveFileMain('${f.id}','${esc(f.name)}')" class="btn btn-soft" style="padding:4px 10px;font-size:11px">Restaurar</button>
+              <button onclick="deleteDriveFileMain('${f.id}')" class="btn btn-ghost" style="padding:4px 10px;font-size:11px;color:var(--danger)">✕</button>
+            </div>
+          </div>`;
+        }).join('');
+        driveFilesListMain.style.display = 'block';
+      } else {
+        driveFilesListMain.innerHTML = '<div style="padding:12px;font-size:12px;opacity:0.6">No hay respaldos en Drive</div>';
+        driveFilesListMain.style.display = 'block';
+      }
+    } catch (_) {
+      driveFilesListMain.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--danger)">Error al listar archivos</div>';
+      driveFilesListMain.style.display = 'block';
+    }
+  });
+
+  cfgDriveAutoUploadMain?.addEventListener('change', async () => {
+    await fetch('/api/google-drive/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ autoUpload: cfgDriveAutoUploadMain.checked })
+    });
+    showToast('Configuración guardada', 'success');
+  });
+
+  window.restoreDriveFileMain = async (id, name) => {
+    if (!confirm(`¿Restaurar backup "${name}"?\nSe creará una copia de seguridad de la BD actual.`)) return;
+    try {
+      const r = await fetch(`/api/google-drive/restore/${id}`, { method: 'POST' }).then(x => x.json());
+      if (r.ok) {
+        showToast('Backup restaurado ✓. Recargando...', 'success');
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showToast('Error: ' + (r.error || 'Desconocido'), 'error');
+      }
+    } catch (_) {
+      showToast('Error al restaurar', 'error');
+    }
+  };
+
+  window.deleteDriveFileMain = async (id) => {
+    if (!confirm('¿Eliminar este respaldo de Drive?')) return;
+    await fetch(`/api/google-drive/delete/${id}`, { method: 'DELETE' });
+    btnDriveListMain.click();
+  };
+
+  loadDriveMain();
+
+  document.getElementById('formConfig')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = Object.fromEntries(fd.entries());
+    body.ivaDefault = Number(body.ivaDefault);
+    const r = await fetch('/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(x => x.json());
+    if (r.ok) {
+      showToast('Ajustes guardados ✓', 'success');
+      closeConfig();
+      setTimeout(() => location.reload(), 400);
+    } else {
+      document.getElementById('msgConfig').innerHTML = '<div class="alert alert-err">' + esc(r.error || 'Error') + '</div>';
+    }
+  });
+})();
+</script>
+</body>
+</html>
+
+

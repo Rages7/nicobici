@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Comprobante / Ticket de Venta</title>
+<link rel="stylesheet" href="/css/style.css"/>
+<style>
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .no-print, .sidebar, .mobile-nav, .topbar { display: none !important; }
+  .app { display: block !important; padding: 0 !important; }
+  .main { margin: 0 !important; padding: 0 !important; }
+  .content { padding: 0 !important; }
+  .card { box-shadow: none !important; border: 1px solid #ccc !important; page-break-inside: avoid; }
+}
+.ticket-paper {
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+@media (max-width: 640px) {
+  .ticket-paper {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar no-print">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Operación</div>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Inicio</a>
+    <a class="side-link" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link active" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <div class="side-section">Administración</div>
+    <a class="side-link" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/><path d="M16 3.1a4 4 0 010 7.8"/></svg> Clientes</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div id="cfgLabel" class="muted" style="color:var(--sidebar-muted);font-size:11px"></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+<div class="topbar no-print">
+  <div>
+    <div class="breadcrumb"><a href="/ventas.html">Ventas</a> <span>/</span> <span style="color:var(--text);font-weight:600">Comprobante</span></div>
+    <h1>Comprobante de Venta</h1>
+  </div>
+  <div class="topbar-actions">
+    <a href="/ventas.html" class="btn btn-ghost">← Volver al POS</a>
+    <button id="btnWhatsapp" class="btn btn-soft" style="background:#25D366;color:#fff;border-color:transparent;font-weight:700">📲 WhatsApp</button>
+    <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir Ticket</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="ticket-paper" id="ticketWrapper">
+    <div id="ticket" style="padding:24px">
+      <div style="text-align:center;padding:20px"><span class="spinner"></span> Cargando comprobante...</div>
+    </div>
+    
+    <div id="cuotas" style="padding:0 24px 20px" class="hidden"></div>
+    <div id="pagos" style="padding:0 24px 24px"></div>
+  </div>
+</div>
+</div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+async function load() {
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) {
+    document.getElementById('ticket').innerHTML = '<div class="alert alert-err">Identificador de venta no especificado.</div>';
+    return;
+  }
+
+  const r = await fetch('/api/ventas/' + id).then(x => x.json()).catch(() => null);
+  if (!r || !r.ok) {
+    document.getElementById('ticket').innerHTML = `<div class="alert alert-err">${esc(r?.error || 'Error al cargar la venta')}</div>`;
+    return;
+  }
+
+  const v = r.data;
+  const pagos = r.pagos || [];
+  const ivaPct = v.items && v.items[0] ? v.items[0].iva : (v.ivaPercent || 21);
+  const cfg = await fetch('/api/config').then(x => x.json()).then(j => j.data || {}).catch(() => ({}));
+  const empresaNombre = cfg.empresa || 'Nicobici Taller & Bikes';
+
+  document.getElementById('ticket').innerHTML = `
+    <div style="text-align:center;border-bottom:2px dashed var(--border);padding-bottom:16px;margin-bottom:16px">
+      <div style="font-size:24px;font-weight:900;letter-spacing:-0.03em">${esc(empresaNombre)}</div>
+      <div class="muted" style="font-size:12px;margin-top:2px">Venta de Bicicletas, Repuestos e Indumentaria</div>
+      <div style="font-family:var(--font-mono);font-size:14px;font-weight:800;margin-top:8px;letter-spacing:0.04em">
+        TICKET N° ${esc(v.ticketNro)}
+      </div>
+      <div class="muted" style="font-size:11px">Fecha: ${esc(v.fecha)} · Emisión: ${new Date(v.creado).toLocaleString('es-AR')}</div>
+    </div>
+
+    <div style="font-size:13px;margin-bottom:16px;background:var(--surface-2);padding:14px 16px;border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;min-width:80px">Cliente:</span>
+        <span style="font-weight:800;font-size:14px;color:var(--text)">${esc(v.clienteNombre || v.usuarioNombre || 'Consumidor Final')}</span>
+        ${v.clienteTelefono ? `<span class="muted" style="font-size:12px">· Tel: ${esc(v.clienteTelefono)}</span>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;min-width:80px">Condición:</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${badgeEstado(v.estado)}
+          <span class="badge badge-gray" style="font-size:11px;font-weight:700">${v.cuotas?.length ? `${v.cuotas.length} Cuotas` : 'Contado'}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="border:0;width:100%;overflow-x:auto;margin-top:6px">
+      <table class="table" style="font-size:12px;width:100%">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th style="text-align:center">Cant.</th>
+            <th class="num">Precio Unit.</th>
+            <th class="num">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${(v.items || []).map(it => {
+            const sub = it.precioUnit * it.qty;
+            return `
+            <tr>
+              <td>
+                <div style="font-weight:700">${esc(it.nombre)}</div>
+                ${it.sku ? `<div class="muted mono" style="font-size:10px">${esc(it.sku)}</div>` : ''}
+              </td>
+              <td style="text-align:center"><span class="badge badge-gray">x${it.qty}</span></td>
+              <td class="num">${money(it.precioUnit)}</td>
+              <td class="num font-bold" style="color:var(--primary)">${money(sub)}</td>
+            </tr>
+          `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:6px;font-size:13px">
+        ${v.ivaTotal > 0 ? `<span class="muted">Subtotal Neto</span><span class="num font-bold">${money(v.subtotal || 0)}</span><span class="muted">IVA (${v.ivaPercent || 21}%)</span><span class="num font-bold">${money(v.ivaTotal)}</span>` : ''}
+        <span style="font-weight:900;font-size:16px;border-top:1px solid var(--border);padding-top:6px">TOTAL</span>
+        <span style="font-weight:900;font-size:16px;border-top:1px solid var(--border);padding-top:6px;color:var(--primary)" class="num">${money(v.total)}</span>
+        <span class="muted">Monto Cobrado / Abonado</span><span class="num font-bold" style="color:var(--success)">${money(v.pagado)}</span>
+        <span style="font-weight:800;color:${v.debe > 0.01 ? 'var(--danger)' : 'var(--success)'}">Saldo Deudor</span>
+        <span style="font-weight:800;color:${v.debe > 0.01 ? 'var(--danger)' : 'var(--success)'}" class="num">${money(v.debe)}</span>
+      </div>
+    </div>
+  `;
+
+  // Cuotas
+  const cBox = document.getElementById('cuotas');
+  if (v.cuotas && v.cuotas.length) {
+    cBox.classList.remove('hidden');
+    const hoy = new Date().toISOString().slice(0, 10);
+    const pagadas = v.cuotas.filter(c => c.pagado).length;
+
+    cBox.innerHTML = `
+      <details style="border-top:1px dashed var(--border);padding-top:16px" open>
+        <summary style="font-weight:800;font-size:13px;margin-bottom:8px;cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center">
+          <span>📅 Plan de Pago en ${v.cuotas.length} Cuotas</span>
+          <span class="badge ${pagadas === v.cuotas.length ? 'badge-green' : 'badge-amber'}" style="font-size:11px">${pagadas}/${v.cuotas.length} saldadas</span>
+        </summary>
+        <div class="table-wrap" style="border:0;width:100%;overflow-x:auto">
+          <table class="table" style="font-size:12px;margin-top:6px;width:100%">
+            <thead><tr><th>#</th><th>Vencimiento</th><th class="num">Monto</th><th>Estado</th></tr></thead>
+            <tbody>
+              ${v.cuotas.map(c => {
+                const fPago = (c.fechaPago || '').slice(0, 10);
+                const esAdelantada = c.pagado && fPago && c.vencimiento && fPago < c.vencimiento;
+                return `
+                  <tr>
+                    <td class="font-bold">Cuota ${c.n}</td>
+                    <td class="mono">${fmtDate(c.vencimiento)} ${!c.pagado && c.vencimiento < hoy ? '<span class="badge badge-red">vencida</span>' : ''}</td>
+                    <td class="num font-bold">${money(c.monto)}</td>
+                    <td>${c.pagado ? `<span class="badge badge-green">${esAdelantada ? `✓ Adelantada (${fmtDate(c.fechaPago)})` : `✓ Pagada (${fmtDate(c.fechaPago)})`}</span>` : '<span class="badge badge-amber">Pendiente</span>'}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    `;
+  } else {
+    cBox.classList.add('hidden');
+  }
+
+  // Pagos
+  const pBox = document.getElementById('pagos');
+  if (pagos.length) {
+    pBox.innerHTML = `
+      <details style="border-top:1px dashed var(--border);padding-top:16px" open>
+        <summary style="font-weight:800;font-size:13px;margin-bottom:8px;cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center">
+          <span>📜 Registro de Cobros Realizados (${pagos.length})</span>
+          <span class="badge badge-green" style="font-size:11px">Cobrado: ${money(v.pagado)}</span>
+        </summary>
+        <div class="table-wrap" style="border:0;width:100%;overflow-x:auto">
+          <table class="table" style="font-size:12px;margin-top:6px;width:100%">
+            <thead><tr><th>Fecha y Hora</th><th class="num">Monto</th><th>Medio de Pago</th><th>Referencia</th></tr></thead>
+            <tbody>
+              ${pagos.map(p => `
+                <tr>
+                  <td class="mono">${new Date(p.fecha).toLocaleString('es-AR')}</td>
+                  <td class="num font-bold" style="color:var(--success)">+${money(p.monto)}</td>
+                  <td><span class="badge badge-gray">${esc(p.metodo || 'efectivo')}</span></td>
+                  <td class="muted">${p.cuotaN ? `Cuota ${p.cuotaN}` : 'Pago contado'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    `;
+  } else {
+    pBox.innerHTML = '';
+  }
+}
+
+
+document.getElementById('btnWhatsapp').onclick = async () => {
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  if (!id) return;
+  const res = await fetch('/api/whatsapp/ticket/' + id);
+  const data = await res.json();
+  if (data.ok && data.url) {
+    window.open(data.url, '_blank');
+  } else {
+    alert(data.error || 'No se pudo generar el enlace de WhatsApp');
+  }
+};
+
+refreshNav().then(load);
+
+</script>
+</body>
+</html>
+

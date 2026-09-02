@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Control de Caja Diaria</title>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Principal</div>
+    <a class="side-link" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas</a>
+    <a class="side-link" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/><path d="M16 3.1a4 4 0 010 7.8"/></svg> Clientes</a>
+        <div class="side-section">Gestión</div>
+    <a class="side-link" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Mostrador / Inicio</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div id="cfgLabel" class="muted" style="color:var(--sidebar-muted);font-size:11px"></div>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-logout" style="display:none;background:var(--sidebar-active);color:#fff;border-color:transparent">Salir</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb"><a href="/">Inicio</a> <span>/</span> <span style="color:var(--text);font-weight:600">Caja Diaria</span></div>
+      <h1>Control de Caja & Arqueo de Efectivo</h1>
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-abrir-modal" class="btn btn-primary" style="display:none">+ Abrir Nueva Caja</button>
+      <button id="btn-mov-modal" class="btn btn-soft" style="display:none">± Ingreso / Egreso</button>
+      <button id="btn-cerrar-modal" class="btn btn-danger" style="display:none">🔒 Cerrar Caja</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="cajaStatus"></div>
+
+    <div id="cajaContent" style="display:none">
+      <div class="grid grid-4" style="margin-top:14px">
+        <div class="card card-pad">
+          <div class="muted" style="font-size:12px;font-weight:700">FONDO INICIAL</div>
+          <div id="kpiInicial" style="font-size:22px;font-weight:900;margin-top:4px">$0</div>
+        </div>
+        <div class="card card-pad">
+          <div class="muted" style="font-size:12px;font-weight:700;color:var(--success)">TOTAL INGRESOS</div>
+          <div id="kpiIngresos" style="font-size:22px;font-weight:900;color:var(--success);margin-top:4px">$0</div>
+        </div>
+        <div class="card card-pad">
+          <div class="muted" style="font-size:12px;font-weight:700;color:var(--danger)">TOTAL EGRESOS</div>
+          <div id="kpiEgresos" style="font-size:22px;font-weight:900;color:var(--danger);margin-top:4px">$0</div>
+        </div>
+        <div class="card card-pad" style="border-left:4px solid var(--primary)">
+          <div class="muted" style="font-size:12px;font-weight:700;color:var(--primary)">EFECTIVO ESPERADO EN CAJA</div>
+          <div id="kpiEsperado" style="font-size:24px;font-weight:900;color:var(--primary);margin-top:4px">$0</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0;font-size:16px">Movimientos del Turno Actual</h3>
+          <button id="btnRefreshMovs" class="btn btn-ghost btn-sm">↻ Actualizar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha y Hora</th>
+                <th>Tipo</th>
+                <th>Concepto / Motivo</th>
+                <th>Método</th>
+                <th style="text-align:right">Monto</th>
+              </tr>
+            </thead>
+            <tbody id="tablaMovs"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de cierres anteriores -->
+    <div class="card" style="margin-top:20px;padding:16px">
+      <h3 style="margin:0 0 12px 0;font-size:16px">Historial de Cierres Anteriores</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Apertura</th>
+              <th>Cierre</th>
+              <th>Fondo Inicial</th>
+              <th>Esperado</th>
+              <th>Contado</th>
+              <th>Diferencia</th>
+              <th>Observaciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaHistorial"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Abrir Caja -->
+<div id="modalAbrir" class="modal-backdrop" style="display:none">
+  <div class="modal" style="max-width:600px">
+    <h3>Apertura de Caja</h3>
+    <form id="formAbrir">
+      <label>Monto Inicial / Fondo Fijo ($)</label>
+      <input type="number" id="abrirMonto" min="0" step="100" value="0" required autofocus style="font-size:18px;font-weight:700"/>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('modalAbrir').style.display='none'">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Abrir Caja</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Movimiento Manual -->
+<div id="modalMov" class="modal-backdrop" style="display:none">
+  <div class="modal" style="max-width:640px">
+    <h3>Registrar Movimiento de Caja</h3>
+    <form id="formMov">
+      <label>Tipo de Operación</label>
+      <select id="movTipo" required>
+        <option value="ingreso">Ingreso Manual de Dinero</option>
+        <option value="gasto">Gasto Menor / Compra Local</option>
+        <option value="retiro">Retiro de Ganancia / Dueño</option>
+        <option value="egreso">Otro Egreso</option>
+      </select>
+      <label style="margin-top:10px">Monto ($)</label>
+      <input type="number" id="movMonto" min="1" step="50" required style="font-size:18px;font-weight:700"/>
+      <label style="margin-top:10px">Motivo / Descripción</label>
+      <input type="text" id="movMotivo" placeholder="Ej. Pago de flete, compra de cinta, etc." required/>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('modalMov').style.display='none'">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Cerrar Caja -->
+<div id="modalCerrar" class="modal-backdrop" style="display:none">
+  <div class="modal" style="max-width:640px">
+    <h3>Cierre & Arqueo de Caja</h3>
+    <p class="muted" style="font-size:13px">Ingrese el total de dinero físico en efectivo contado en la caja.</p>
+    <form id="formCerrar">
+      <label>Efectivo Físico Contado ($)</label>
+      <input type="number" id="cerrarContado" min="0" step="10" required autofocus style="font-size:20px;font-weight:900;color:var(--primary)"/>
+      <label style="margin-top:10px">Observaciones / Justificación de diferencia</label>
+      <textarea id="cerrarObs" rows="2" placeholder="Opcional"></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('modalCerrar').style.display='none'">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Confirmar Cierre</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+async function cargarCaja() {
+  const res = await fetch('/api/caja');
+  const data = await res.json();
+  const box = data.data;
+
+  const statusEl = document.getElementById('cajaStatus');
+  const contentEl = document.getElementById('cajaContent');
+  const btnAbrir = document.getElementById('btn-abrir-modal');
+  const btnMov = document.getElementById('btn-mov-modal');
+  const btnCerrar = document.getElementById('btn-cerrar-modal');
+
+  if (!box) {
+    statusEl.innerHTML = `
+      <div class="card card-pad" style="text-align:center;padding:40px">
+        <div style="font-size:48px">🔒</div>
+        <h2 style="margin:12px 0 6px 0">La caja se encuentra cerrada</h2>
+        <p class="muted" style="max-width:400px;margin:0 auto 20px auto">Abra una nueva caja diaria para comenzar a registrar movimientos y cobrar operaciones.</p>
+        <button class="btn btn-primary" onclick="document.getElementById('modalAbrir').style.display='flex'">+ Abrir Caja Ahora</button>
+      </div>
+    `;
+    contentEl.style.display = 'none';
+    btnAbrir.style.display = 'inline-block';
+    btnMov.style.display = 'none';
+    btnCerrar.style.display = 'none';
+  } else {
+    statusEl.innerHTML = `
+      <div class="card card-pad" style="background:#ecfdf5;border-color:#a7f3d0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:24px">🟢</span>
+          <div>
+            <strong style="color:#065f46">Caja Abierta</strong>
+            <div class="muted" style="color:#047857;font-size:12px">Abierta desde: ${new Date(box.fechaApertura).toLocaleString('es-AR')}</div>
+          </div>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#065f46">
+          Turno Activo
+        </div>
+      </div>
+    `;
+    contentEl.style.display = 'block';
+    btnAbrir.style.display = 'none';
+    btnMov.style.display = 'inline-block';
+    btnCerrar.style.display = 'inline-block';
+
+    document.getElementById('kpiInicial').innerText = '$' + box.totales.montoInicial.toLocaleString('es-AR');
+    document.getElementById('kpiIngresos').innerText = '+$' + box.totales.ingresos.toLocaleString('es-AR');
+    document.getElementById('kpiEgresos').innerText = '-$' + box.totales.egresos.toLocaleString('es-AR');
+    document.getElementById('kpiEsperado').innerText = '$' + box.totales.efectivoEsperado.toLocaleString('es-AR');
+
+    const tbody = document.getElementById('tablaMovs');
+    tbody.innerHTML = (box.movimientos || []).map(m => {
+      const isIngreso = ['ingreso', 'venta', 'pago_deuda'].includes(m.tipo);
+      return `
+        <tr>
+          <td>${new Date(m.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}</td>
+          <td><span class="badge ${isIngreso ? 'badge-green' : 'badge-red'}">${m.tipo.toUpperCase()}</span></td>
+          <td><strong>${m.motivo || '—'}</strong></td>
+          <td>${m.metodo}</td>
+          <td style="text-align:right;font-weight:700;color:${isIngreso ? 'var(--success)' : 'var(--danger)'}">
+            ${isIngreso ? '+' : '-'}$${m.monto.toLocaleString('es-AR')}
+          </td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="5" style="text-align:center" class="muted">No hay movimientos registrados en este turno aún.</td></tr>';
+  }
+
+  cargarHistorial();
+}
+
+async function cargarHistorial() {
+  const res = await fetch('/api/caja/historial');
+  const data = await res.json();
+  const tbody = document.getElementById('tablaHistorial');
+  tbody.innerHTML = (data.data || []).map(h => {
+    const diff = Number(h.diferencia) || 0;
+    const diffColor = diff === 0 ? 'var(--success)' : (diff > 0 ? 'var(--primary)' : 'var(--danger)');
+    return `
+      <tr>
+        <td>${new Date(h.fecha_apertura).toLocaleString('es-AR')}</td>
+        <td>${h.fecha_cierre ? new Date(h.fecha_cierre).toLocaleString('es-AR') : '<span class="badge badge-green">En Curso</span>'}</td>
+        <td>$${Number(h.monto_inicial).toLocaleString('es-AR')}</td>
+        <td>$${(Number(h.efectivo_esperado) || 0).toLocaleString('es-AR')}</td>
+        <td>$${(Number(h.efectivo_contado) || 0).toLocaleString('es-AR')}</td>
+        <td style="font-weight:700;color:${diffColor}">
+          ${diff > 0 ? '+' : ''}$${diff.toLocaleString('es-AR')}
+        </td>
+        <td class="muted">${h.observaciones || '—'}</td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="7" style="text-align:center" class="muted">Sin historial de cierres previos.</td></tr>';
+}
+
+document.getElementById('btn-abrir-modal').onclick = () => document.getElementById('modalAbrir').style.display = 'flex';
+document.getElementById('btn-mov-modal').onclick = () => document.getElementById('modalMov').style.display = 'flex';
+document.getElementById('btn-cerrar-modal').onclick = () => document.getElementById('modalCerrar').style.display = 'flex';
+document.getElementById('btnRefreshMovs').onclick = cargarCaja;
+
+document.getElementById('formAbrir').onsubmit = async (e) => {
+  e.preventDefault();
+  const monto = Number(document.getElementById('abrirMonto').value) || 0;
+  const res = await fetch('/api/caja/abrir', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ montoInicial: monto })
+  });
+  const data = await res.json();
+  if (!data.ok) return alert(data.error || 'Error al abrir caja');
+  document.getElementById('modalAbrir').style.display = 'none';
+  cargarCaja();
+};
+
+document.getElementById('formMov').onsubmit = async (e) => {
+  e.preventDefault();
+  const tipo = document.getElementById('movTipo').value;
+  const monto = Number(document.getElementById('movMonto').value);
+  const motivo = document.getElementById('movMotivo').value;
+
+  const res = await fetch('/api/caja/movimiento', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tipo, monto, motivo })
+  });
+  const data = await res.json();
+  if (!data.ok) return alert(data.error || 'Error');
+  document.getElementById('modalMov').style.display = 'none';
+  document.getElementById('formMov').reset();
+  cargarCaja();
+};
+
+document.getElementById('formCerrar').onsubmit = async (e) => {
+  e.preventDefault();
+  if (!confirm('¿Confirma el cierre y arqueo de la caja?')) return;
+  const contado = Number(document.getElementById('cerrarContado').value);
+  const obs = document.getElementById('cerrarObs').value;
+
+  const res = await fetch('/api/caja/cerrar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ efectivoContado: contado, observaciones: obs })
+  });
+  const data = await res.json();
+  if (!data.ok) return alert(data.error || 'Error al cerrar caja');
+  document.getElementById('modalCerrar').style.display = 'none';
+  document.getElementById('formCerrar').reset();
+  alert(`Cierre registrado.\nEsperado: $${data.data.efectivoEsperado}\nContado: $${data.data.efectivoContado}\nDiferencia: $${data.data.diferencia}`);
+  cargarCaja();
+};
+
+cargarCaja();
+</script>
+</body>
+</html>

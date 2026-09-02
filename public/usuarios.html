@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Nicobici — Gestión de Clientes & Deudas</title>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="logo"><div class="logo-mark">NB</div> <span>Nicobici</span></a>
+  </div>
+  <nav class="side-nav">
+    <div class="side-section">Principal</div>
+    <a class="side-link" href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg> Dashboard</a>
+    <a class="side-link" href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg> Productos</a>
+    <a class="side-link" href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Ventas</a>
+    <a class="side-link active" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/><path d="M16 3.1a4 4 0 010 7.8"/></svg> Clientes</a>
+        <div class="side-section">Gestión</div>
+    <a class="side-link" href="/inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l9 4-9 4-9-4z"/><path d="M21 10l-9 4-9-4"/><path d="M21 14l-9 4-9-4"/></svg> Inventario</a>
+    <a class="side-link" href="/proveedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2"/><path d="M22 8a2 2 0 00-2 2"/></svg> Proveedores</a>
+    <a class="side-link" href="/categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 01-8 8 8 8 0 01-8-8 8 8 0 018-8c2 0 4 .7 5.5 1.9"/></svg> Categorías</a>
+    <a class="side-link" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10L12 3l9 7v9a1 1 0 01-1 1h-5v-5H9v5H4a1 1 0 01-1-1z"/></svg> Mostrador / Inicio</a>
+  </nav>
+  <div class="side-foot">
+    <div style="min-width:0">
+      <div id="nav-user" class="side-foot-user" style="display:none"></div>
+      <div class="muted" style="font-size:11px;color:var(--sidebar-muted)">Gestión de cuentas</div>
+    </div>
+    <button id="btn-logout" class="btn btn-ghost btn-sm" style="display:none;background:var(--sidebar-active);color:#fff;border-color:transparent">Salir</button>
+  </div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+  <div>
+    <div class="breadcrumb"><a href="/">Inicio</a> <span>/</span> <span style="color:var(--text);font-weight:600">Clientes</span></div>
+    <h1>Directorio de Clientes & Cuentas Corrientes</h1>
+  </div>
+  <div class="topbar-actions">
+    <span class="nav-user badge badge-blue" style="display:none;font-size:12px;font-weight:700"></span>
+    <button id="btn-new" class="btn btn-primary">+ Nuevo Cliente</button>
+    <button class="btn btn-ghost btn-sm btn-logout" style="display:none;color:var(--danger)" title="Cerrar sesión">🚪 Salir</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="card" style="padding:16px 20px">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+      <div style="flex:1;min-width:240px">
+        <label>Buscar cliente por Nombre, Apellido, DNI, Teléfono o Domicilio
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input id="q" placeholder="Ej: Juan Pérez, 35123456, San Martín 123..." style="width:100%;margin-top:0" autocomplete="off"/>
+          </div>
+        </label>
+      </div>
+      <button id="btn-search" class="btn btn-ghost">Buscar</button>
+      <span id="contadorClientes" class="badge badge-gray" style="white-space:nowrap;font-size:12px">0 clientes</span>
+    </div>
+
+    <!-- Filtros rápidos de estado de cuenta -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+      <span class="muted" style="font-size:12px;font-weight:700">Estado de cuenta:</span>
+      <button data-filtro="todos" class="btn btn-sm btn-ghost filtro-btn active" style="border-color:var(--primary);background:var(--primary-soft);color:var(--primary)">Todos</button>
+      <button data-filtro="deuda" class="btn btn-sm btn-ghost filtro-btn">⚠️ Con Saldo Deudor <span id="countDeuda" class="badge badge-red" style="margin-left:4px">0</span></button>
+      <button data-filtro="aldia" class="btn btn-sm btn-ghost filtro-btn">✓ Cuentas al Día <span id="countAldia" class="badge badge-green" style="margin-left:4px">0</span></button>
+      <button data-filtro="sincompras" class="btn btn-sm btn-ghost filtro-btn">Sin compras registradas</button>
+      
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <label style="margin:0;font-size:12px;display:flex;gap:6px;align-items:center;cursor:pointer">
+          <input type="checkbox" id="ordenDeuda" checked/> Ordenar por mayor deuda ↓
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Clientes -->
+  <div class="card" style="margin-top:16px;overflow:hidden">
+    <div class="table-wrap" style="border:0;border-radius:0">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cliente / Razón Social</th>
+            <th>DNI / CUIT</th>
+            <th>Teléfono & WhatsApp</th>
+            <th class="num">Compras</th>
+            <th class="num">Saldo Deudor</th>
+            <th class="num">Total Histórico</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="8" class="muted" style="text-align:center;padding:24px"><span class="spinner"></span> Cargando clientes...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- Modal Nuevo / Editar Cliente -->
+<div id="modal" class="modal-back hidden">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-head">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="modal-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div>
+        <div>
+          <h3 id="mtitle">Nuevo Cliente</h3>
+          <div class="modal-subtitle">Datos de contacto para facturación y cobro</div>
+        </div>
+      </div>
+      <button id="btn-x" class="modal-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="msg"></div>
+      <form id="form" class="form-row">
+        <div class="grid grid-2">
+          <label>Nombre <span class="req">*</span><input name="nombre" required placeholder="Ej: Juan" maxlength="40"/></label>
+          <label>Apellido <span class="req">*</span><input name="apellido" required placeholder="Ej: Pérez" maxlength="40"/></label>
+        </div>
+        <div class="grid grid-2">
+          <label>DNI / CUIT<input name="dni" placeholder="Ej: 35.123.456 (opcional)" maxlength="20"/></label>
+          <label>Teléfono (WhatsApp) <span class="req">*</span><input name="telefono" required placeholder="Ej: 11-4000-1000" maxlength="20"/></label>
+        </div>
+        <label>Domicilio / Dirección
+          <input name="direccion" placeholder="Ej: Av. San Martín 1234, Barrio Centro" maxlength="120"/>
+        </label>
+        <div class="form-hint">El DNI y domicilio agilizan la búsqueda y la entrega/facturación en el Punto de Venta (POS).</div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button type="button" id="btn-cancel" class="btn btn-ghost">Cancelar</button>
+      <button type="submit" form="form" class="btn btn-primary" style="min-width:140px">💾 Guardar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ver Ficha de Cliente & Historial de Compras -->
+<div id="modalVerCliente" class="modal-back hidden">
+  <div class="modal" style="max-width:1180px">
+    <div class="modal-head">
+      <div id="verClienteTitle" style="flex:1"></div>
+      <button id="btn-x-verCliente" class="modal-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="verClienteBody" style="background:#f8fafc;padding:20px"></div>
+    <div class="modal-foot">
+      <button type="button" id="btn-cerrar-verCliente" class="btn btn-primary">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle de Venta, Cuotas & Registro de Pago -->
+<div id="modalDetalleVenta" class="modal-back hidden" style="z-index:60">
+  <div class="modal" style="max-width:1180px">
+    <div class="modal-head">
+      <div id="detalleVentaTitle" style="flex:1"></div>
+      <button id="btn-x-detalle" class="modal-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="detalleVentaBody" style="background:#f8fafc;padding:0"></div>
+    <div class="modal-foot">
+      <button type="button" id="btn-cerrar-detalle" class="btn btn-ghost">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ticket In-Place -->
+<div id="modalTicketInPlace" class="modal-back hidden" style="z-index:70">
+  <div class="modal" style="max-width:850px">
+    <div class="modal-head">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="modal-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div>
+          <h3 id="ticketModalNro">Ticket</h3>
+          <div class="modal-subtitle" id="ticketModalSub">Comprobante de venta</div>
+        </div>
+      </div>
+      <button id="btn-x-ticketModal" class="modal-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="ticketModalBody" style="background:#f8fafc;padding:16px"></div>
+    <div class="modal-foot">
+      <button type="button" id="btn-cerrar-ticketModal" class="btn btn-ghost">Cerrar</button>
+      <button type="button" id="btnImprimirTicketModal" class="btn btn-primary">🖨️ Imprimir / Abrir Ticket</button>
+    </div>
+  </div>
+</div>
+
+
+<nav class="mobile-nav">
+  <a href="/dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg><span>Dashboard</span></a>
+  <a href="/productos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a1 1 0 00-1-1H8a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1z"/><path d="M3 6a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg><span>Productos</span></a>
+  <a href="/ventas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a1 1 0 011 1v18a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M8 7h8M8 11h8"/></svg><span>Ventas</span></a>
+  <a class="active" href="/usuarios.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9"/></svg><span>Clientes</span></a>
+  <a href="#" class="btn-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="color:var(--danger)">Salir</span></a>
+</nav>
+
+<script src="/js/app.js"></script>
+<script>
+let editing = null, idClienteActual = null, allClientes = [], filtroActual = 'todos';
+
+function iniciales(c) {
+  const a = (c.nombre || '')[0] || '';
+  const b = (c.apellido || '')[0] || '';
+  return (a + b).toUpperCase() || 'NB';
+}
+
+function avatarColor(c) {
+  const s = (c.nombre || '') + (c.apellido || '');
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
+  return `hsl(${h} 65% 42%)`;
+}
+
+function clienteRow(c) {
+  const tieneDeuda = c.deuda > 0.01;
+  const ini = iniciales(c);
+  const bg = avatarColor(c);
+
+  return `
+    <tr style="${tieneDeuda ? 'background:#fffdfa' : ''}">
+      <td class="mono font-bold" style="font-size:11px">${esc(c.id.slice(0, 8).toUpperCase())}</td>
+      <td>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0;background:${bg}">
+            ${ini}
+          </span>
+          <div>
+            <div style="font-weight:700;line-height:1.2;font-size:14px">${esc(c.nombre)} ${esc(c.apellido)}</div>
+            <div class="muted" style="font-size:11px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:2px">
+              <span>${c.ventasCount} compra${c.ventasCount !== 1 ? 's' : ''}</span>
+              ${c.direccion ? `<span style="color:var(--text-muted);font-size:11px" title="Domicilio / Dirección">📍 ${esc(c.direccion)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      </td>
+      <td class="mono" style="font-size:12px">${c.dni ? `<span class="badge badge-blue">${esc(c.dni)}</span>` : '<span class="muted">—</span>'}</td>
+      <td class="mono">
+        <div style="display:flex;gap:6px;align-items:center">
+          <span>${esc(c.telefono)}</span>
+          ${c.telefono ? `
+            <button class="btn btn-ghost btn-sm" style="padding:2px 6px;color:#16a34a" title="Enviar WhatsApp" onclick="enviarWpp('${esc(c.telefono)}', '${esc(c.nombre)}', ${c.deuda || 0})">
+              💬
+            </button>
+          ` : ''}
+        </div>
+      </td>
+      <td class="num"><span class="badge ${c.ventasCount ? 'badge-gray' : 'badge-amber'}">${c.ventasCount}</span></td>
+      <td class="num">
+        ${tieneDeuda ? `<span class="badge badge-red" style="font-weight:800;font-size:12px">${money(c.deuda)}</span>` : `<span class="badge badge-green">Al día ✓</span>`}
+      </td>
+      <td class="num font-bold">${money(c.totalCompras)}</td>
+      <td style="white-space:nowrap">
+        <div class="actions-cell">
+          <button class="btn btn-ghost btn-sm" onclick="ver('${c.id}')">👤 Ficha</button>
+          <button class="btn-action btn-edit btn-sm-icon" onclick="editCli('${c.id}')" title="Editar Cliente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-action btn-delete btn-sm-icon" onclick="delCli('${c.id}')" title="Eliminar Cliente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </button>
+          <a class="btn btn-primary btn-sm" href="/ventas.html?clienteId=${c.id}" title="Facturar directo a este cliente">🛒 Vender</a>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+function enviarWpp(telefono, nombre, deuda) {
+  const msg = deuda > 0.01
+    ? `Hola ${nombre}! Te escribimos de Nicobici para recordarte tu saldo pendiente de ${money(deuda)}. ¡Muchas gracias!`
+    : `Hola ${nombre}! Te escribimos de Nicobici. ¡Gracias por confiar en nosotros!`;
+  openWhatsApp(telefono, msg);
+}
+
+function aplicarFiltros(lista) {
+  let out = lista.slice();
+  const ord = document.getElementById('ordenDeuda')?.checked;
+  if (ord) out.sort((a, b) => (b.deuda - a.deuda) || a.nombre.localeCompare(b.nombre));
+  else out.sort((a, b) => (a.nombre + ' ' + a.apellido).localeCompare(b.nombre + ' ' + b.apellido));
+
+  if (filtroActual === 'deuda') out = out.filter(c => c.deuda > 0.01);
+  else if (filtroActual === 'aldia') out = out.filter(c => c.deuda <= 0.01 && c.ventasCount > 0);
+  else if (filtroActual === 'sincompras') out = out.filter(c => c.ventasCount === 0);
+  return out;
+}
+
+function renderClientes() {
+  const tb = document.getElementById('tbody');
+  const lista = aplicarFiltros(allClientes);
+  document.getElementById('contadorClientes').textContent = `${lista.length} / ${allClientes.length} clientes`;
+  if (!lista.length) {
+    tb.innerHTML = '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px">No se encontraron clientes con el filtro actual.</td></tr>';
+  } else {
+    tb.innerHTML = lista.map(clienteRow).join('');
+  }
+}
+
+async function load() {
+  try {
+    const q = document.getElementById('q')?.value?.trim() || '';
+    const r = await fetch('/api/clientes?q=' + encodeURIComponent(q)).then(x => x.json()).catch(() => ({ ok: true, data: [] }));
+    allClientes = (r && r.data) ? r.data : [];
+
+    const deudaCount = allClientes.filter(c => c.deuda > 0.01).length;
+    const aldiaCount = allClientes.filter(c => c.deuda <= 0.01 && c.ventasCount > 0).length;
+    if (document.getElementById('countDeuda')) document.getElementById('countDeuda').textContent = deudaCount;
+    if (document.getElementById('countAldia')) document.getElementById('countAldia').textContent = aldiaCount;
+
+    renderClientes();
+  } catch (err) {
+    console.error('Error cargando clientes:', err);
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="8" class="muted" style="text-align:center;padding:24px">Error al cargar clientes. Reintentá recargando la página.</td></tr>';
+  }
+}
+
+
+async function ver(id) {
+  const r = await fetch('/api/clientes/' + id).then(x => x.json());
+  const c = r.data;
+  idClienteActual = id;
+  const ini = iniciales(c), bg = avatarColor(c), tieneDeuda = c.deuda > 0.01;
+
+  document.getElementById('verClienteTitle').innerHTML = `
+    <div style="display:flex;gap:14px;align-items:center">
+      <span style="width:48px;height:48px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:16px;flex-shrink:0;background:${bg}">
+        ${ini}
+      </span>
+      <div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:18px;font-weight:800">${esc(c.nombre)} ${esc(c.apellido)}</span>
+          <span class="badge ${tieneDeuda ? 'badge-red' : 'badge-green'}">${tieneDeuda ? 'Debe ' + money(c.deuda) : 'Al día ✓'}</span>
+        </div>
+        <div class="muted" style="font-size:12px;margin-top:2px">
+          ${c.dni ? `DNI: ${esc(c.dni)} · ` : ''}Tel: ${esc(c.telefono)} ${c.direccion ? `· 📍 Domicilio: ${esc(c.direccion)}` : ''} · ${c.ventas.length} compras registradas
+        </div>
+      </div>
+    </div>
+  `;
+
+  const body = document.getElementById('verClienteBody');
+  body.innerHTML = `
+    <div class="kpis" style="margin-bottom:16px">
+      <div class="kpi ${tieneDeuda ? 'kpi-red' : 'kpi-green'}">
+        <div class="kpi-label">Saldo Deudor Actual</div>
+        <div class="kpi-value" style="color:${tieneDeuda ? 'var(--danger)' : 'var(--success)'}">${money(c.deuda)}</div>
+        <div class="kpi-sub">${tieneDeuda ? 'Gestión de cobro pendiente' : 'Cuenta corriente al día'}</div>
+      </div>
+      <div class="kpi kpi-blue">
+        <div class="kpi-label">Total Facturado Histórico</div>
+        <div class="kpi-value">${money(c.ventas.reduce((s, v) => s + (v.total || 0), 0))}</div>
+        <div class="kpi-sub">Pagado: ${money(c.ventas.reduce((s, v) => s + (v.pagado || 0), 0))}</div>
+      </div>
+      <div class="kpi kpi-blue">
+        <div class="kpi-label">Acciones Rápidas</div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn btn-soft btn-sm" onclick="enviarWpp('${esc(c.telefono)}', '${esc(c.nombre)}', ${c.deuda || 0})">💬 Enviar WhatsApp</button>
+          <a href="/ventas.html?clienteId=${c.id}" class="btn btn-primary btn-sm">🛒 Facturar a este Cliente</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="overflow:hidden">
+      <div class="card-header">
+        <h3>Historial de Ventas & Comprobantes</h3>
+      </div>
+      <div class="table-wrap" style="border:0">
+        <table class="table">
+          <thead><tr><th>Ticket</th><th>Fecha</th><th>Productos</th><th class="num">Total</th><th class="num">Cobrado / Saldo</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${c.ventas.length ? c.ventas.map(v => `
+              <tr>
+                <td><button type="button" class="btn btn-ghost btn-sm mono font-bold" style="color:var(--primary);padding:2px 6px" onclick="verTicketModal('${v.id}')">📄 ${esc(v.ticketNro)}</button></td>
+                <td class="mono" style="font-size:11px">${esc(v.fecha)}</td>
+                <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((v.items || []).map(i => i.nombre + ' x' + i.qty).join(', '))}</td>
+                <td class="num font-bold">${money(v.total)}</td>
+                <td class="num">
+                  <span style="color:var(--success)">${money(v.pagado)}</span> / 
+                  <b style="color:${v.debe > 0.01 ? 'var(--danger)' : 'var(--success)'}">${money(v.debe)}</b>
+                </td>
+                <td>${badgeEstado(v.estado)}</td>
+                <td style="white-space:nowrap">
+                  <div style="display:flex;gap:4px">
+                    <a class="btn btn-primary btn-sm" href="/ticket.html?id=${v.id}" target="_blank" title="Abrir e imprimir comprobante">📄 Ticket</a>
+                    <button class="btn btn-ghost btn-sm" onclick="verVenta('${v.id}')">💵 Cobro / Cuotas</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('') : '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px">Sin compras registradas aún.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modalVerCliente').classList.remove('hidden');
+}
+
+// Modal Ver Ticket In-Place
+async function verTicketModal(ventaId) {
+  const r = await fetch('/api/ventas/' + ventaId).then(x => x.json()).catch(() => null);
+  if (!r || !r.ok) {
+    showToast('Error al cargar ticket', 'error');
+    return;
+  }
+  const v = r.data;
+  const pagos = r.pagos || [];
+  const cuotas = v.cuotas || [];
+  const hoy = new Date().toISOString().slice(0, 10);
+  const pagadas = cuotas.filter(c => c.pagado).length;
+
+  document.getElementById('ticketModalNro').textContent = `TICKET N° ${v.ticketNro}`;
+  document.getElementById('ticketModalSub').textContent = `Emisión: ${new Date(v.creado).toLocaleString('es-AR')}`;
+
+  const body = document.getElementById('ticketModalBody');
+  body.innerHTML = `
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px;max-width:640px;margin:0 auto;box-sizing:border-box">
+      <div style="text-align:center;border-bottom:2px dashed var(--border);padding-bottom:12px;margin-bottom:14px">
+        <div style="font-size:22px;font-weight:900;letter-spacing:-0.02em">Nicobici</div>
+        <div class="muted" style="font-size:12px">Venta de Bicicletas, Repuestos e Indumentaria</div>
+        <div class="mono font-bold" style="font-size:15px;margin-top:6px">TICKET N° ${esc(v.ticketNro)}</div>
+        <div class="muted" style="font-size:11px">Fecha: ${esc(v.fecha)} · ${new Date(v.creado).toLocaleTimeString('es-AR')}</div>
+      </div>
+
+      <!-- Datos del Cliente y Condición Alineados en Misma Columna -->
+      <div style="font-size:13px;margin-bottom:14px;background:var(--surface-2);padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;min-width:80px">Cliente:</span>
+          <span style="font-weight:800;font-size:14px;color:var(--text)">${esc(v.clienteNombre || v.usuarioNombre || 'Consumidor Final')}</span>
+          ${v.clienteTelefono ? `<span class="muted" style="font-size:12px">· Tel: ${esc(v.clienteTelefono)}</span>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;min-width:80px">Condición:</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${badgeEstado(v.estado)}
+            <span class="badge badge-gray" style="font-size:11px;font-weight:700">${cuotas.length ? `${cuotas.length} Cuotas` : 'Contado'}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="border:0;width:100%;overflow-x:auto;margin-bottom:12px">
+        <table class="table" style="font-size:12px;width:100%">
+          <thead>
+            <tr><th>Producto</th><th style="text-align:center">Cant.</th><th class="num">Precio Unit.</th><th class="num">Subtotal</th></tr>
+          </thead>
+          <tbody>
+            ${(v.items || []).map(it => {
+              const sub = (it.precioUnit || 0) * (it.qty || 1);
+              return `
+              <tr>
+                <td>
+                  <div style="font-weight:700">${esc(it.nombre)}</div>
+                  ${it.sku ? `<div class="muted mono" style="font-size:10px">${esc(it.sku)}</div>` : ''}
+                </td>
+                <td style="text-align:center"><span class="badge badge-gray">x${it.qty}</span></td>
+                <td class="num">${money(it.precioUnit)}</td>
+                <td class="num font-bold" style="color:var(--primary)">${money(sub)}</td>
+              </tr>
+            `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Resumen Limpio sin IVA -->
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-size:13px;margin-bottom:14px">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
+          <span style="font-weight:900;font-size:15px">TOTAL</span>
+          <span style="font-weight:900;font-size:15px;color:var(--primary)" class="num">${money(v.total)}</span>
+          <span class="muted">Monto Cobrado / Abonado</span><span class="num font-bold" style="color:var(--success)">${money(v.pagado)}</span>
+          <span style="font-weight:800;color:${v.debe > 0.01 ? 'var(--danger)' : 'var(--success)'}">Saldo Pendiente</span>
+          <span style="font-weight:800;color:${v.debe > 0.01 ? 'var(--danger)' : 'var(--success)'}" class="num">${money(v.debe)}</span>
+        </div>
+      </div>
+
+      ${cuotas.length ? `
+        <details style="border-top:1px dashed var(--border);padding-top:12px;margin-bottom:14px" open>
+          <summary style="font-weight:800;font-size:12px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
+            <span>📅 Plan de ${cuotas.length} Cuotas</span>
+            <span class="badge ${pagadas === cuotas.length ? 'badge-green' : 'badge-amber'}" style="font-size:10px;font-weight:800">${pagadas}/${cuotas.length} saldadas</span>
+          </summary>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+            ${cuotas.map(c => {
+              if (c.pagado) {
+                const fPago = (c.fechaPago || '').slice(0, 10);
+                const esAdelantada = fPago && c.vencimiento && fPago < c.vencimiento;
+                return `
+                  <div style="display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:6px 10px;font-size:11px">
+                    <span><b>Cuota ${c.n}</b> (${money(c.monto)})</span>
+                    <span class="badge badge-green">${esAdelantada ? `✓ Pagada Adelantada (${fmtDate(c.fechaPago)})` : `✓ Pagada (${fmtDate(c.fechaPago)})`}</span>
+                  </div>
+                `;
+              } else {
+                const esVencida = c.vencimiento < hoy;
+                return `
+                  <div style="display:flex;justify-content:space-between;align-items:center;background:${esVencida ? '#fef2f2' : '#f8fafc'};border:1px solid ${esVencida ? '#fecaca' : 'var(--border)'};border-radius:6px;padding:6px 10px;font-size:11px">
+                    <span><b>Cuota ${c.n}</b> (${money(c.monto - (c.montoPagado || 0))})</span>
+                    <span class="badge ${esVencida ? 'badge-red' : 'badge-gray'}">${esVencida ? `⚠️ Vencida (${fmtDate(c.vencimiento)})` : `Vence ${fmtDate(c.vencimiento)}`}</span>
+                  </div>
+                `;
+              }
+            }).join('')}
+          </div>
+        </details>
+      ` : ''}
+
+      ${pagos.length ? `
+        <details style="border-top:1px dashed var(--border);padding-top:12px">
+          <summary style="font-weight:800;font-size:12px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none">
+            <span>📜 Historial de Cobros (${pagos.length})</span>
+            <span class="badge badge-green" style="font-size:10px;font-weight:800">Cobrado: ${money(v.pagado)}</span>
+          </summary>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+            ${pagos.map(p => `
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:4px 0;border-bottom:1px solid var(--border)">
+                <span class="mono muted">${fmtDateTime(p.fecha)}</span>
+                <span><b>${p.cuotaN ? `Cuota ${p.cuotaN}` : 'Cobro'}</b> (${esc(p.metodo || 'efectivo')})</span>
+                <span class="num font-bold" style="color:var(--success)">+ ${money(p.monto)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </details>
+      ` : ''}
+    </div>
+  `;
+
+  document.getElementById('btnImprimirTicketModal').onclick = () => {
+    window.open('/ticket.html?id=' + ventaId, '_blank');
+  };
+
+  document.getElementById('modalTicketInPlace').classList.remove('hidden');
+}
+
+// Detalle de Venta & Pagos
+let detalleVenta = null;
+async function verVenta(id) {
+  const r = await fetch('/api/ventas/' + id).then(x => x.json());
+  const v = r.data;
+  const pagos = r.pagos || [];
+  detalleVenta = v;
+  const cuotas = v.cuotas || [];
+  const pagadas = cuotas.filter(c => c.pagado).length;
+  const pendientes = cuotas.filter(c => !c.pagado);
+  const siguiente = pendientes.length > 0 ? pendientes[0] : null;
+  const hoy = new Date().toISOString().slice(0, 10);
+  const estadoPagada = v.debe <= 0.01;
+
+  document.getElementById('detalleVentaTitle').innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="modal-icon ${estadoPagada ? 'green' : 'blue'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <h3 class="mono">${esc(v.ticketNro)}</h3>
+          ${badgeEstado(v.estado)}
+        </div>
+        <div class="modal-subtitle">Fecha: ${fmtDate(v.fecha)} · ${cuotas.length ? cuotas.length + ' cuotas' : 'Contado'}</div>
+      </div>
+    </div>
+  `;
+
+  const body = document.getElementById('detalleVentaBody');
+  body.innerHTML = `
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box">
+      
+      <!-- Resumen Financiero Limpio y Directo -->
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:grid;grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));gap:10px;text-align:center">
+        <div><div class="kpi-label">TOTAL FACTURADO</div><div class="num font-bold" style="font-size:16px;color:var(--primary)">${money(v.total)}</div></div>
+        <div><div class="kpi-label">TOTAL COBRADO</div><div class="num font-bold" style="font-size:16px;color:var(--success)">${money(v.pagado || 0)}</div></div>
+        <div><div class="kpi-label">SALDO PENDIENTE</div><div class="num font-bold" style="font-size:16px;color:${estadoPagada ? 'var(--success)' : 'var(--danger)'}">${money(v.debe || 0)}</div></div>
+      </div>
+
+      <!-- Productos Facturados -->
+      <div class="modal-section">
+        <div class="modal-section-head">Detalle de Productos Facturados</div>
+        <div class="table-wrap" style="border:0;width:100%;overflow-x:auto">
+          <table class="table" style="font-size:12px;width:100%">
+            <thead><tr><th>Producto</th><th style="text-align:center">Cant.</th><th class="num">Precio Unit.</th><th class="num">Subtotal</th></tr></thead>
+            <tbody>
+              ${(v.items || []).map(it => `
+                <tr>
+                  <td>
+                    <div style="font-weight:700">${esc(it.nombre)}</div>
+                    ${it.sku ? `<div class="muted mono" style="font-size:10px">${esc(it.sku)}</div>` : ''}
+                  </td>
+                  <td style="text-align:center"><span class="badge badge-gray">x${it.qty}</span></td>
+                  <td class="num">${money(it.precioUnit)}</td>
+                  <td class="num font-bold" style="color:var(--primary)">${money((it.precioUnit || 0) * (it.qty || 1))}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Plan de Cuotas con Detección de Pagos Adelantados (details colapsable) -->
+      ${cuotas.length ? `
+        <details class="modal-section" open>
+          <summary class="modal-section-head">
+            <span style="font-weight:800;font-size:12px;color:#ffffff">
+              📅 CRONOGRAMA DE CUOTAS (${pagadas}/${cuotas.length} CUBIERTAS)
+              <span style="font-size:10px;font-weight:400;color:#94a3b8;margin-left:6px">(click para contraer/expandir)</span>
+            </span>
+            <span style="background:${pagadas === cuotas.length ? '#dcfce7' : '#fef3c7'};color:${pagadas === cuotas.length ? '#166534' : '#92400e'};font-weight:900;font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid ${pagadas === cuotas.length ? '#86efac' : '#fde68a'}">
+              ${pagadas === cuotas.length ? '✓ PLAN COMPLETADO' : `${cuotas.length - pagadas} PENDIENTES`}
+            </span>
+          </summary>
+          <div class="modal-section-body" style="display:flex;flex-direction:column;gap:8px">
+            ${cuotas.map(c => {
+              if (c.pagado) {
+                const fPago = (c.fechaPago || '').slice(0, 10);
+                const esAdelantada = fPago && c.vencimiento && fPago < c.vencimiento;
+                return `
+                  <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius-sm);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+                    <div>
+                      <span style="font-weight:800;font-size:13px;color:#166534">Cuota ${c.n}</span>
+                      <span class="muted" style="font-size:11px;margin-left:8px">Vencimiento: ${fmtDate(c.vencimiento)}</span>
+                    </div>
+                    <div style="text-align:right">
+                      <div style="font-weight:800;font-size:14px;color:#166534">${money(c.monto)}</div>
+                      <span class="badge badge-green" style="font-size:10px;font-weight:700">${esAdelantada ? `✓ Pagada Adelantada (${fmtDate(c.fechaPago)})` : `✓ Pagada en fecha (${fmtDate(c.fechaPago)})`}</span>
+                    </div>
+                  </div>
+                `;
+              } else {
+                const esVencida = c.vencimiento < hoy;
+                const falta = c.monto - (c.montoPagado || 0);
+                return `
+                  <div style="background:${esVencida ? '#fef2f2' : '#f8fafc'};border:1px solid ${esVencida ? '#fecaca' : 'var(--border)'};border-radius:var(--radius-sm);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+                    <div>
+                      <span style="font-weight:800;font-size:13px;color:${esVencida ? 'var(--danger)' : 'var(--text)'}">Cuota ${c.n}</span>
+                      <span class="muted" style="font-size:11px;margin-left:8px">${esVencida ? `<b style="color:var(--danger)">Venció el ${fmtDate(c.vencimiento)}</b>` : `Vence el ${fmtDate(c.vencimiento)}`}</span>
+                    </div>
+                    <div style="text-align:right">
+                      <div style="font-weight:800;font-size:14px;color:${esVencida ? 'var(--danger)' : 'var(--text)'}">${money(falta)}</div>
+                      <span class="badge" style="background:${esVencida ? '#fee2e2' : '#fef3c7'};color:${esVencida ? '#b91c1c' : '#92400e'};font-weight:800;font-size:10px;border:1px solid ${esVencida ? '#fecaca' : '#fde68a'}">
+                        ${esVencida ? '⚠️ CUOTA VENCIDA' : '⏳ PENDIENTE DE COBRO'}
+                      </span>
+                    </div>
+                  </div>
+                `;
+              }
+            }).join('')}
+          </div>
+        </details>
+      ` : ''}
+
+      <!-- Historial Completo de Cobros y Recibos Registrados (details colapsable) -->
+      ${pagos.length ? `
+        <details class="modal-section" open>
+          <summary class="modal-section-head">
+            <span style="font-weight:800;font-size:12px;color:#ffffff">
+              📜 HISTORIAL DE COBROS & RECIBOS (${pagos.length})
+              <span style="font-size:10px;font-weight:400;color:#94a3b8;margin-left:6px">(click para contraer/expandir)</span>
+            </span>
+            <span style="background:#d1fae5;color:#065f46;font-weight:900;font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid #a7f3d0">
+              TOTAL INGRESADO: ${money(v.pagado || 0)}
+            </span>
+          </summary>
+          <div class="table-wrap" style="border:0">
+            <table class="table" style="font-size:12px">
+              <thead>
+                <tr>
+                  <th>Fecha y Hora</th>
+                  <th>Concepto / Cuota</th>
+                  <th>Medio de Pago</th>
+                  <th class="num">Monto Cobrado</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${pagos.map(p => {
+                  const metodoBadge = p.metodo === 'efectivo' ? '💵 Efectivo' : (p.metodo === 'transferencia' ? '🏦 Transferencia' : (p.metodo === 'tarjeta' ? '💳 Tarjeta' : '📲 MercadoPago'));
+                  const concepto = p.cuotaN ? `Cuota ${p.cuotaN}` : (p.monto === v.total ? 'Pago Total al Contado' : 'Cobro / Anticipo');
+                  return `
+                    <tr>
+                      <td class="mono" style="font-size:11px">${fmtDateTime(p.fecha)}</td>
+                      <td><span class="badge badge-gray">${esc(concepto)}</span></td>
+                      <td><b>${esc(metodoBadge)}</b></td>
+                      <td class="num font-bold" style="color:var(--success)">+ ${money(p.monto)}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      ` : ''}
+
+      <!-- Formulario para Registrar Nuevo Cobro -->
+      ${v.debe > 0.01 ? `
+        <div style="background:var(--primary-soft);border:1px solid #dbeafe;border-radius:var(--radius);padding:14px">
+          <div style="font-weight:800;font-size:13px;margin-bottom:8px">💵 Registrar Pago / Cobro de Cuota (Adelantado o al Día)</div>
+          <div class="grid grid-2" style="gap:10px">
+            <label>Monto a abonar ($)
+              <input type="number" id="montoCuotaDetalle" value="${siguiente ? (siguiente.monto - (siguiente.montoPagado || 0)) : v.debe}" min="0" step="any" style="font-weight:800;font-size:15px;background:#fff"/>
+            </label>
+            <label>Medio de cobro
+              <select id="metodoCuotaDetalle" style="background:#fff">
+                <option value="efectivo">💵 Efectivo</option>
+                <option value="transferencia">🏦 Transferencia Bancaria</option>
+                <option value="tarjeta">💳 Tarjeta de Débito/Crédito</option>
+                <option value="mercadopago">📲 MercadoPago / QR</option>
+              </select>
+            </label>
+          </div>
+          <button id="btnPagarCuota" class="btn btn-primary" style="margin-top:12px;width:100%;justify-content:center;padding:10px;font-weight:700">✓ Confirmar Ingreso de Pago</button>
+        </div>
+      ` : `
+        <div class="alert alert-ok"><span class="dot green"></span>Esta venta se encuentra 100% saldada. No registra deuda pendiente ✓</div>
+      `}
+      <div id="msgDetalleVenta"></div>
+    </div>
+  `;
+
+  document.getElementById('modalDetalleVenta').classList.remove('hidden');
+
+  document.getElementById('btnPagarCuota')?.addEventListener('click', async () => {
+    const m = Number(document.getElementById('montoCuotaDetalle').value) || 0;
+    if (m <= 0) {
+      showToast('Ingresa un monto válido mayor a 0', 'warn');
+      return;
+    }
+    const metodo = document.getElementById('metodoCuotaDetalle').value;
+    const pr = await fetch(`/api/ventas/${v.id}/pagar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ monto: m, metodo })
+    }).then(x => x.json());
+
+    if (!pr.ok) {
+      document.getElementById('msgDetalleVenta').innerHTML = `<div class="alert alert-err">${esc(pr.error)}</div>`;
+      return;
+    }
+
+    showToast('¡Pago registrado correctamente!', 'success');
+    document.getElementById('modalDetalleVenta').classList.add('hidden');
+    ver(idClienteActual);
+    load();
+  });
+}
+
+
+// Modal CRUD Cliente
+function open() { document.getElementById('modal').classList.remove('hidden'); }
+function close() {
+  document.getElementById('modal').classList.add('hidden');
+  editing = null;
+  document.getElementById('form').reset();
+  document.getElementById('msg').innerHTML = '';
+}
+
+document.getElementById('btn-new')?.addEventListener('click', () => {
+  editing = null;
+  document.getElementById('mtitle').textContent = 'Nuevo Cliente';
+  open();
+});
+document.getElementById('btn-cancel')?.addEventListener('click', close);
+document.getElementById('btn-x')?.addEventListener('click', close);
+document.getElementById('modal')?.addEventListener('click', (e) => { if (e.target.id === 'modal') close(); });
+
+document.getElementById('form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = Object.fromEntries(fd.entries());
+
+  const url = editing ? '/api/clientes/' + editing.id : '/api/clientes';
+  const method = editing ? 'PUT' : 'POST';
+
+  const r = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(x => x.json());
+
+  if (!r.ok) {
+    document.getElementById('msg').innerHTML = `<div class="alert alert-err">${esc(r.error)}</div>`;
+    return;
+  }
+
+  showToast(editing ? 'Cliente actualizado' : '¡Cliente creado con éxito!', 'success');
+  close();
+  load();
+});
+
+async function editCli(id) {
+  const r = await fetch('/api/clientes/' + id).then(x => x.json());
+  const c = r.data;
+  editing = c;
+  document.getElementById('mtitle').textContent = 'Editar Cliente ' + c.nombre;
+  const f = document.getElementById('form');
+  f.nombre.value = c.nombre;
+  f.apellido.value = c.apellido;
+  f.dni.value = c.dni || '';
+  f.telefono.value = c.telefono;
+  f.direccion.value = c.direccion || '';
+  open();
+}
+
+async function delCli(id) {
+  if (!confirm('¿Eliminar este cliente del sistema?')) return;
+  const r = await fetch('/api/clientes/' + id, { method: 'DELETE' }).then(x => x.json());
+  if (r.ok) {
+    showToast('Cliente eliminado', 'info');
+    load();
+  } else {
+    showToast(r.error || 'Error al eliminar', 'error');
+  }
+}
+
+// Event Listeners
+document.getElementById('btn-x-verCliente')?.addEventListener('click', () => document.getElementById('modalVerCliente').classList.add('hidden'));
+document.getElementById('btn-cerrar-verCliente')?.addEventListener('click', () => document.getElementById('modalVerCliente').classList.add('hidden'));
+document.getElementById('btn-x-detalle')?.addEventListener('click', () => document.getElementById('modalDetalleVenta').classList.add('hidden'));
+document.getElementById('btn-cerrar-detalle')?.addEventListener('click', () => document.getElementById('modalDetalleVenta').classList.add('hidden'));
+document.getElementById('btn-x-ticketModal')?.addEventListener('click', () => document.getElementById('modalTicketInPlace').classList.add('hidden'));
+document.getElementById('btn-cerrar-ticketModal')?.addEventListener('click', () => document.getElementById('modalTicketInPlace').classList.add('hidden'));
+
+let qTimeout = null;
+document.getElementById('q')?.addEventListener('input', () => {
+  clearTimeout(qTimeout);
+  qTimeout = setTimeout(load, 300);
+});
+document.getElementById('btn-search')?.addEventListener('click', load);
+
+document.querySelectorAll('.filtro-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.filtro-btn').forEach(x => {
+      x.classList.remove('active');
+      x.style.borderColor = '';
+      x.style.background = '';
+      x.style.color = '';
+    });
+    b.classList.add('active');
+    b.style.borderColor = 'var(--primary)';
+    b.style.background = 'var(--primary-soft)';
+    b.style.color = 'var(--primary)';
+    filtroActual = b.dataset.filtro;
+    renderClientes();
+  });
+});
+
+document.getElementById('ordenDeuda')?.addEventListener('change', renderClientes);
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'F2') { e.preventDefault(); document.getElementById('btn-new')?.click(); }
+  if (e.key === 'F3') { e.preventDefault(); document.getElementById('q')?.focus(); }
+  if (e.key === 'Escape') {
+    if (!document.getElementById('modalTicketInPlace').classList.contains('hidden')) document.getElementById('modalTicketInPlace').classList.add('hidden');
+    else if (!document.getElementById('modalDetalleVenta').classList.contains('hidden')) document.getElementById('modalDetalleVenta').classList.add('hidden');
+    else if (!document.getElementById('modalVerCliente').classList.contains('hidden')) document.getElementById('modalVerCliente').classList.add('hidden');
+    else if (!document.getElementById('modal').classList.contains('hidden')) close();
+  }
+});
+
+load();
+refreshNav();
+</script>
+</body>
+</html>
+
+
