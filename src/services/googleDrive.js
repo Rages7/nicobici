@@ -42,10 +42,22 @@ function loadCredentials() {
   }
   const raw = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf8'));
   const creds = raw.installed || raw.web;
+  
+  // Seleccionar redirectUri correcto según entorno
+  const uris = creds.redirect_uris || [];
+  let redirectUri = 'http://localhost:3000/api/google-drive/callback'; // default local
+  if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
+    // En Render/producción, buscar URI que no sea localhost
+    redirectUri = uris.find(u => !u.includes('localhost')) || uris[0] || redirectUri;
+  } else {
+    // Local: buscar URI con localhost
+    redirectUri = uris.find(u => u.includes('localhost')) || uris[0] || redirectUri;
+  }
+  
   return {
     clientId: creds.client_id,
     clientSecret: creds.client_secret,
-    redirectUri: (creds.redirect_uris && creds.redirect_uris[0]) || 'http://localhost:3000/api/google-drive/callback'
+    redirectUri
   };
 }
 
